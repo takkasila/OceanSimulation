@@ -14,6 +14,7 @@
     <ProjectGuid>{B853E4C4-A4D7-4439-8229-5929240577CB}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>OpenGL32Skeleton</RootNamespace>
+    <ProjectName>OceanSimulation</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
