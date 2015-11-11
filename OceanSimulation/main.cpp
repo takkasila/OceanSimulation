@@ -32,7 +32,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 
-	window = glfwCreateWindow(window_width, window_height, "OpenGLSkeleton", NULL, NULL);
+	window = glfwCreateWindow(window_width, window_height, "OceanSimulation", NULL, NULL);
 
 	if (window == NULL)
 	{
@@ -57,6 +57,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 #pragma endregion
 
 	GLuint programID = LoadShaders("scene_v_shader.glsl", "scene_f_shader.glsl");
@@ -85,6 +86,11 @@ int main()
 	GLuint ModelMatrixID = glGetUniformLocation(programID, "Model");
 	GLuint renderModeID = glGetUniformLocation(programID, "renderMode");
 
+	GLuint mvp_uniform_block;
+	glGenBuffers(1, &mvp_uniform_block);
+	glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4), NULL, GL_STATIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, mvp_uniform_block);
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -97,7 +103,8 @@ int main()
 		
 		glUseProgram(programID);
 
-		glUniformMatrix4fv(MVPID, 1, GL_FALSE, &MVP[0][0]);
+		//glUniformMatrix4fv(MVPID, 1, GL_FALSE, &MVP[0][0]);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(MVP), &MVP[0][0], GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);

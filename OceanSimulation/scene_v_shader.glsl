@@ -5,10 +5,14 @@ layout(location = 1) in vec2 vertexUV;
 
 out vec2 UV;
 
-uniform mat4 MVP;
+// uniform mat4 MVP;
+layout (std140, binding = 0) uniform MVP2{
+	mat4 mvp;
+};
 
 void main()
 {
-	gl_Position = MVP * vec4(vertexPosition_modelspace, 1);
-	UV = vertexUV;
+	gl_Position = mvp * vec4(vertexPosition_modelspace, 1);
+	// gl_PointSize = gl_Position.z * gl_VertexID;
+	// UV = vertexUV;
 }
