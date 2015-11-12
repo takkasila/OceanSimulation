@@ -67,6 +67,7 @@ int main()
 
 	ShaderGenerator shaderProgram;
 	shaderProgram.AddShader("scene_v_shader.glsl", GL_VERTEX_SHADER);
+	shaderProgram.AddShader("scene_geometry_shader.glsl", GL_GEOMETRY_SHADER);
 	shaderProgram.AddShader("scene_f_shader.glsl", GL_FRAGMENT_SHADER);
 	GLuint programID = shaderProgram.LinkProgram();
 
@@ -88,6 +89,16 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_v_data), plane_v_data, GL_STATIC_DRAW);
 
+	GLfloat plane_colors [] = {
+		-0.5f, 0.5f, 1.0f, 0.0f, 0.0f, // Top-left
+		0.5f, 0.5f, 0.0f, 1.0f, 0.0f, // Top-right
+		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
+		-0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // Bottom-left
+	};
+	GLuint plane_color_buffer;
+	glGenBuffers(1, &plane_color_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_colors), plane_colors, GL_STATIC_DRAW);
 
 	GLuint MVPID = glGetUniformLocation(programID, "MVP");
 	GLuint ViewMatrixID = glGetUniformLocation(programID, "View");
@@ -117,9 +128,13 @@ int main()
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
-		glVertexAttribPointer(0 , 3 , GL_FLOAT , GL_FALSE , 0 , (void*) 0 );
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+		glDrawArrays(GL_POINTS, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
