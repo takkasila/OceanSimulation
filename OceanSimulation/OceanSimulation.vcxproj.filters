@@ -43,5 +43,8 @@
     <None Include="scene_f_shader.glsl">
       <Filter>Shader</Filter>
     </None>
+    <None Include="scene_geometry_shader.glsl">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

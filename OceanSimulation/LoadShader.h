@@ -1,6 +1,6 @@
 #ifndef LOADSHADER_H
 #define LOADSHADER_H
 
-GLuint LoadShaders(const char* vertex_file_path, const char* fragment_file_path);
+void LoadShader(GLuint* programID, const char* shader_file_path, GLenum shader_type, GLuint* shader_object);
 
 #endif

@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <vector>
 
 #include "GLEW\glew.h"
 #include "GLFW\glfw3.h"
 #include "glm\glm.hpp"
+#include "glm\gtc\matrix_transform.hpp"
 
 #include "LoadShader.h"
 #include "Controls.h"
@@ -19,6 +21,8 @@ extern "C" {	// Force using Nvidia GPU. Turn 0 if don't want to.
 GLFWwindow* window;
 float window_width = 1200;
 float window_height = 900;
+
+GLuint shaderGuy();
 
 int main()
 {
@@ -51,7 +55,8 @@ int main()
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
 	
-	glClearColor(0.8, 0.8, 0.8, 0);
+	//glClearColor(0.8, 0.8, 0.8, 0);
+	glClearColor(0, 0, 0, 1);
 
 	//Z-Buffer
 	glEnable(GL_DEPTH_TEST);
@@ -60,7 +65,7 @@ int main()
 	glEnable(GL_PROGRAM_POINT_SIZE);
 #pragma endregion
 
-	GLuint programID = LoadShaders("scene_v_shader.glsl", "scene_f_shader.glsl");
+	GLuint programID = shaderGuy();
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -98,7 +103,8 @@ int main()
 		computeMatricesFromInputs();
 		mat4 projection = getProjectionMatrix();
 		mat4 view = getViewMatrix();
-		mat4 model = mat4(1.0f);
+		mat4 model = mat4(1);
+		model = glm::scale(model, vec3(5, 5, 5));
 		mat4 MVP = projection  * view * model;
 		
 		glUseProgram(programID);
@@ -123,4 +129,38 @@ int main()
 
 	return 0;
 	
+}
+
+GLuint shaderGuy()
+{
+	vector<GLuint> shaderObjects;
+	GLuint tempShaderObj;
+
+	GLuint programID = glCreateProgram();
+
+	LoadShader(&programID, "scene_v_shader.glsl", GL_VERTEX_SHADER, &tempShaderObj);
+	shaderObjects.push_back(tempShaderObj);
+
+	LoadShader(&programID, "scene_f_shader.glsl", GL_FRAGMENT_SHADER, &tempShaderObj);
+	shaderObjects.push_back(tempShaderObj);
+
+	glLinkProgram(programID);
+
+
+	GLint Result = GL_FALSE;
+	int InfoLogLength;
+
+	// Check the program
+	glGetProgramiv(programID, GL_LINK_STATUS, &Result);
+	glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	vector<char> ProgramErrorMessage(max(InfoLogLength, int(1)));
+	glGetProgramInfoLog(programID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+	fprintf(stdout, "%s\n", &ProgramErrorMessage[0]);
+
+	for (auto i = shaderObjects.begin(); i != shaderObjects.end(); i++)
+	{
+		glDeleteShader(*i);
+	}
+
+	return programID;
 }

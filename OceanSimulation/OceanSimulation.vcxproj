@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="scene_f_shader.glsl" />
+    <None Include="scene_geometry_shader.glsl" />
     <None Include="scene_v_shader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
