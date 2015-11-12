@@ -65,7 +65,10 @@ int main()
 	glEnable(GL_PROGRAM_POINT_SIZE);
 #pragma endregion
 
-	GLuint programID = shaderGuy();
+	ShaderGenerator shaderProgram;
+	shaderProgram.AddShader("scene_v_shader.glsl", GL_VERTEX_SHADER);
+	shaderProgram.AddShader("scene_f_shader.glsl", GL_FRAGMENT_SHADER);
+	GLuint programID = shaderProgram.LinkProgram();
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -129,38 +132,4 @@ int main()
 
 	return 0;
 	
-}
-
-GLuint shaderGuy()
-{
-	vector<GLuint> shaderObjects;
-	GLuint tempShaderObj;
-
-	GLuint programID = glCreateProgram();
-
-	LoadShader(&programID, "scene_v_shader.glsl", GL_VERTEX_SHADER, &tempShaderObj);
-	shaderObjects.push_back(tempShaderObj);
-
-	LoadShader(&programID, "scene_f_shader.glsl", GL_FRAGMENT_SHADER, &tempShaderObj);
-	shaderObjects.push_back(tempShaderObj);
-
-	glLinkProgram(programID);
-
-
-	GLint Result = GL_FALSE;
-	int InfoLogLength;
-
-	// Check the program
-	glGetProgramiv(programID, GL_LINK_STATUS, &Result);
-	glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-	vector<char> ProgramErrorMessage(max(InfoLogLength, int(1)));
-	glGetProgramInfoLog(programID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-	fprintf(stdout, "%s\n", &ProgramErrorMessage[0]);
-
-	for (auto i = shaderObjects.begin(); i != shaderObjects.end(); i++)
-	{
-		glDeleteShader(*i);
-	}
-
-	return programID;
 }

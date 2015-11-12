@@ -11,9 +11,11 @@ using namespace std;
 
 #include "GLEW\glew.h"
 
-#include "LoadShader.h"
+#include "LoadShader.h";
 
-void LoadShader(GLuint* programID, const char* shader_file_path, GLenum shader_type, GLuint* shader_object)
+
+
+void ShaderGenerator::AddShader(const char* shader_file_path, GLenum shader_type)
 {
 	GLuint ShaderID = glCreateShader(shader_type);
 
@@ -45,7 +47,29 @@ void LoadShader(GLuint* programID, const char* shader_file_path, GLenum shader_t
 
 	// Attach Shader
 	fprintf(stdout, "Attach shader : %s\n", shader_file_path);
-	glAttachShader(*programID, ShaderID);
+	glAttachShader(programID, ShaderID);
 
-	
+	shaderObjects.push_back(ShaderID);
+}
+
+GLuint ShaderGenerator::LinkProgram()
+{
+	glLinkProgram(programID);
+
+	GLint Result = GL_FALSE;
+	int InfoLogLength;
+
+	// Check the program
+	glGetProgramiv(programID, GL_LINK_STATUS, &Result);
+	glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	vector<char> ProgramErrorMessage(max(InfoLogLength, int(1)));
+	glGetProgramInfoLog(programID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+	fprintf(stdout, "%s\n", &ProgramErrorMessage[0]);
+
+	for (auto i = shaderObjects.begin(); i != shaderObjects.end(); i++)
+	{
+		glDeleteShader(*i);
+	}
+
+	return programID;
 }
