@@ -58,5 +58,8 @@
     <None Include="v_simple.glsl">
       <Filter>Shader\Simple</Filter>
     </None>
+    <None Include="v_normals_visualize.glsl">
+      <Filter>Shader\Utility</Filter>
+    </None>
   </ItemGroup>
 </Project>

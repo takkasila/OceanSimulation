@@ -24,11 +24,123 @@ float window_height = 900;
 
 GLuint shaderGuy();
 
+int InitProgram();
 void SendUniformMVP();
 
 int main()
 {
-#pragma region Init
+	int programStatus = InitProgram();
+	if (programStatus != 0)
+		return programStatus;
+
+	ShaderGenerator shaderProgram;
+	shaderProgram.AddShader("v_simple.glsl", GL_VERTEX_SHADER);
+	shaderProgram.AddShader("f_input_color.glsl", GL_FRAGMENT_SHADER);
+	GLuint shaderProgramID = shaderProgram.LinkProgram();
+
+	ShaderGenerator normalVisualizeShaderProgram;
+	normalVisualizeShaderProgram.AddShader("v_normals_visualize.glsl", GL_VERTEX_SHADER);
+	normalVisualizeShaderProgram.AddShader("g_normals_visualize.glsl", GL_GEOMETRY_SHADER);
+	normalVisualizeShaderProgram.AddShader("f_input_color.glsl", GL_FRAGMENT_SHADER);
+	GLuint normalVisualizeShaderProgramID = normalVisualizeShaderProgram.LinkProgram();
+
+	GLuint VertexArrayID;
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+
+	// Testing PLANE
+	GLfloat plane_v_data[] = {
+		-1, 0, -1,
+		-1, 0, 1,
+		1, 0, 1,
+		-1, 0, -1,
+		1, 0, 1,
+		1, 0, -1
+	};
+	GLuint plane_v_buffer;
+	glGenBuffers(1, &plane_v_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_v_data), plane_v_data, GL_STATIC_DRAW);
+
+	GLfloat plane_colors [] = {
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f
+	};
+	GLuint plane_color_buffer;
+	glGenBuffers(1, &plane_color_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_colors), plane_colors, GL_STATIC_DRAW);
+	GLuint isUseColorID = glGetUniformLocation(shaderProgramID, "isUseColor");
+
+	GLfloat plane_normal [] = {
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0,
+		0, 1, 0
+	};
+	GLuint plane_normal_buffer;
+	glGenBuffers(1, &plane_normal_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, plane_normal_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_normal), plane_normal, GL_STATIC_DRAW);
+
+	GLuint mvp_uniform_block;
+	glGenBuffers(1, &mvp_uniform_block);
+	glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4) * 3, NULL, GL_STATIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, mvp_uniform_block);
+	do
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		SendUniformMVP();
+		
+		// Render scene
+		glUseProgram(shaderProgramID);
+
+		glUniform1i(isUseColorID, GL_TRUE);
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// Render normal visualize
+		glUseProgram(normalVisualizeShaderProgramID);
+		
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, plane_normal_buffer);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FLOAT, 0, (void*) 0);
+
+		glDrawArrays(GL_TRIANGLES, 0, 12);
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
+		&& glfwWindowShouldClose(window) == 0);
+
+
+	glDeleteProgram(shaderProgramID);
+	glfwTerminate();
+	return 0;
+}
+
+int InitProgram()
+{
 	if (!glfwInit())
 	{
 		fprintf(stderr, "Failed to init glfw\n");
@@ -56,7 +168,7 @@ int main()
 	}
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
-	
+
 	//glClearColor(0.8, 0.8, 0.8, 0);
 	glClearColor(0, 0, 0, 1);
 
@@ -65,84 +177,10 @@ int main()
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_PROGRAM_POINT_SIZE);
-#pragma endregion
-
-	ShaderGenerator shaderProgram;
-	shaderProgram.AddShader("v_simple.glsl", GL_VERTEX_SHADER);
-	//shaderProgram.AddShader("scene_geometry_shader.glsl", GL_GEOMETRY_SHADER);
-	shaderProgram.AddShader("f_input_color.glsl", GL_FRAGMENT_SHADER);
-	GLuint programID = shaderProgram.LinkProgram();
-
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	// Testing PLANE
-	GLfloat plane_v_data[] = {
-		-1, 0, -1
-		, -1, 0, 1
-		, 1, 0, 1
-		, -1, 0, -1
-		, 1, 0, 1
-		, 1, 0, -1
-	};
-	GLuint plane_v_buffer;
-	glGenBuffers(1, &plane_v_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_v_data), plane_v_data, GL_STATIC_DRAW);
-
-	GLfloat plane_colors [] = {
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f
-	};
-	GLuint plane_color_buffer;
-	glGenBuffers(1, &plane_color_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_colors), plane_colors, GL_STATIC_DRAW);
-
-	GLuint isUseColorID = glGetUniformLocation(programID, "isUseColor");
-
-	GLuint mvp_uniform_block;
-	glGenBuffers(1, &mvp_uniform_block);
-	glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4) * 3, NULL, GL_STATIC_DRAW);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, mvp_uniform_block);
-	do
-	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		SendUniformMVP();
-		
-		glUseProgram(programID);
-
-		glUniform1i(isUseColorID, GL_TRUE);
-
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
-		&& glfwWindowShouldClose(window) == 0);
-
-	glDeleteProgram(programID);
-	
-	glfwTerminate();
 
 	return 0;
-	
 }
+
 
 void SendUniformMVP()
 {
