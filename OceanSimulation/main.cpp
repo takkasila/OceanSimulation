@@ -24,6 +24,8 @@ float window_height = 900;
 
 GLuint shaderGuy();
 
+void SendUniformMVP();
+
 int main()
 {
 #pragma region Init
@@ -66,9 +68,9 @@ int main()
 #pragma endregion
 
 	ShaderGenerator shaderProgram;
-	shaderProgram.AddShader("scene_v_shader.glsl", GL_VERTEX_SHADER);
-	shaderProgram.AddShader("scene_geometry_shader.glsl", GL_GEOMETRY_SHADER);
-	shaderProgram.AddShader("scene_f_shader.glsl", GL_FRAGMENT_SHADER);
+	shaderProgram.AddShader("v_simple.glsl", GL_VERTEX_SHADER);
+	//shaderProgram.AddShader("scene_geometry_shader.glsl", GL_GEOMETRY_SHADER);
+	shaderProgram.AddShader("f_input_color.glsl", GL_FRAGMENT_SHADER);
 	GLuint programID = shaderProgram.LinkProgram();
 
 	GLuint VertexArrayID;
@@ -90,41 +92,34 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_v_data), plane_v_data, GL_STATIC_DRAW);
 
 	GLfloat plane_colors [] = {
-		-0.5f, 0.5f, 1.0f, 0.0f, 0.0f, // Top-left
-		0.5f, 0.5f, 0.0f, 1.0f, 0.0f, // Top-right
-		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
-		-0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // Bottom-left
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f
 	};
 	GLuint plane_color_buffer;
 	glGenBuffers(1, &plane_color_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_colors), plane_colors, GL_STATIC_DRAW);
 
-	GLuint MVPID = glGetUniformLocation(programID, "MVP");
-	GLuint ViewMatrixID = glGetUniformLocation(programID, "View");
-	GLuint ModelMatrixID = glGetUniformLocation(programID, "Model");
-	GLuint renderModeID = glGetUniformLocation(programID, "renderMode");
+	GLuint isUseColorID = glGetUniformLocation(programID, "isUseColor");
 
 	GLuint mvp_uniform_block;
 	glGenBuffers(1, &mvp_uniform_block);
 	glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4) * 3, NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, mvp_uniform_block);
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		computeMatricesFromInputs();
-		mat4 projection = getProjectionMatrix();
-		mat4 view = getViewMatrix();
-		mat4 model = mat4(1);
-		model = glm::scale(model, vec3(5, 5, 5));
-		mat4 MVP = projection  * view * model;
+		SendUniformMVP();
 		
 		glUseProgram(programID);
 
-		//glUniformMatrix4fv(MVPID, 1, GL_FALSE, &MVP[0][0]);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(MVP), &MVP[0][0], GL_STATIC_DRAW);
+		glUniform1i(isUseColorID, GL_TRUE);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
@@ -134,7 +129,7 @@ int main()
 		glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-		glDrawArrays(GL_POINTS, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -147,4 +142,17 @@ int main()
 
 	return 0;
 	
+}
+
+void SendUniformMVP()
+{
+	computeMatricesFromInputs();
+	mat4 projection = getProjectionMatrix();
+	mat4 view = getViewMatrix();
+	mat4 model = mat4(1);
+
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mat4), &model[0][0]);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), &view[0][0]);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4) * 2, sizeof(mat4), &projection[0][0]);
+
 }

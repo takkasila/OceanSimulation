@@ -90,9 +90,10 @@
     <ClInclude Include="LoadShader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="scene_f_shader.glsl" />
-    <None Include="scene_geometry_shader.glsl" />
-    <None Include="scene_v_shader.glsl" />
+    <None Include="g_normals_visualize.glsl" />
+    <None Include="f_input_color.glsl" />
+    <None Include="g_house.glsl" />
+    <None Include="v_simple.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

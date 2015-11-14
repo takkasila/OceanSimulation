@@ -22,10 +22,11 @@ mat4 getProjectionMatrix()
 }
 
 // Initial 
-vec3 position = vec3(8, 6, 10);
+vec3 position = vec3(0, 2, 5);
 
 // turn toward -Z
-float horizontalAngle = (5 / 4.0f)*pi<float>();
+//float horizontalAngle = (5 / 4.0f)*pi<float>();
+float horizontalAngle = pi<float>();
 float verticalAngle = -pi<float>() / 5;
 float initialFoV = 45;
 
