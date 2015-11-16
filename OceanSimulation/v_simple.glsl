@@ -22,4 +22,5 @@ void main()
 	gl_Position = projection * view * model * vec4(vertexPosition_modelspace, 1);
 	vs_out.color = color;
 	vs_out.normal = normal;
+	gl_PointSize = 5;
 }
