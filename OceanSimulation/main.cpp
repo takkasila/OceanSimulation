@@ -9,6 +9,7 @@
 #include "LoadShader.h"
 #include "Controls.h"
 #include "RenderObject.h"
+#include "Terrain.h"
 
 using namespace glm;
 using namespace std;
@@ -23,16 +24,13 @@ GLFWwindow* window;
 float window_width = 1200;
 float window_height = 900;
 
-GLuint shaderGuy();
-
 int InitProgram();
 void SendUniformMVP();
 
 int main()
 {
-	int programStatus = InitProgram();
-	if (programStatus != 0)
-		return programStatus;
+	if (InitProgram() != 0)
+		return -1;
 
 	ShaderGenerator shaderProgram;
 	shaderProgram.AddShader("v_simple.glsl", GL_VERTEX_SHADER);
@@ -83,6 +81,11 @@ int main()
 	plane.SetVertex(plane_v_data, sizeof(plane_v_data)/sizeof(GLfloat));
 	plane.SetColor(plane_colors, sizeof(plane_colors)/sizeof(GLfloat));
 	plane.SetNormal(plane_normal, sizeof(plane_normal)/sizeof(GLfloat));
+
+	///*Terrain ocean(50, 50, 1);
+	//RenderObject oceanObject;
+	//oceanObject.SetVertex(ocean.GetVertices());*/
+
 
 	GLuint mvp_uniform_block;
 	glGenBuffers(1, &mvp_uniform_block);
