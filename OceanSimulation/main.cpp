@@ -42,11 +42,10 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	//GLuint isUseColorID = glGetUniformLocation(shaderProgramID, "isUseColor");
-
-	Terrain ocean(50, 50, 1);
-	RenderObject oceanObject;
-	oceanObject.SetVertex(ocean.GetVertices());
+	Terrain oceanObj(50, 50, 1);
+	RenderObject oceanObjBuffer;
+	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
+	oceanObjBuffer.SetIndices(oceanObj.GetIndices());
 
 
 	GLuint mvp_uniform_block;
@@ -54,6 +53,8 @@ int main()
 	glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4) * 3, NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, mvp_uniform_block);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -63,10 +64,12 @@ int main()
 		glUseProgram(shaderProgramID);
 
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, oceanObject.vertices_buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, oceanObjBuffer.vertices_buffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-		glDrawArrays(GL_POINTS, 0, ocean.GetWidth() * ocean.GetLength());
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, oceanObjBuffer.indices_buffer);
+		glDrawElements(GL_TRIANGLES, oceanObj.GetIndices().size(), GL_UNSIGNED_INT, (void*) 0);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS

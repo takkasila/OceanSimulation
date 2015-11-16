@@ -9,34 +9,54 @@ using namespace glm;
 
 #include "Terrain.h"
 
-
-Terrain::Terrain(int width, int length, int spacing)
+#define INDEX(x, z, x_width) (x+z*x_width)
+Terrain::Terrain(int x_width, int z_width, int spacing)
 {
 
-	this->width = width;
-	this->length = length;
+	this->x_width = x_width;
+	this->z_width = z_width;
 	this->spacing = spacing;
 
-	for (int x = 0; x < width; x++)
+	for (int z = 0; z < z_width; z++)
 	{
-		for (int z = 0; z < length; z++)
+		for (int x = 0; x < x_width; x++)
 		{
 			vertices.push_back(vec3(x * spacing, 0, z * spacing));
+
+			// Filling indices
+			if (z > 0 && x > 0)
+			{
+				// Bottom triangle
+				indices.push_back(INDEX((x - 1), (z - 1), x_width));
+				indices.push_back(INDEX((x - 1), (z - 0), x_width));
+				indices.push_back(INDEX((x - 0), (z - 0), x_width));
+
+				// Top triangle
+				indices.push_back(INDEX((x - 1), (z - 1), x_width));
+				indices.push_back(INDEX((x - 0), (z - 0), x_width));
+				indices.push_back(INDEX((x - 0), (z - 1), x_width));
+			}
 		}
+
 	}
 }
 
-int Terrain::GetWidth()
+int Terrain::GetWidth_X()
 {
-	return width;
+	return x_width;
 }
 
-int Terrain::GetLength()
+int Terrain::GetWidth_Z()
 {
-	return length;
+	return z_width;
 }
 
 vector<vec3> Terrain::GetVertices()
 {
 	return vertices;
+}
+
+vector<unsigned int> Terrain::GetIndices()
+{
+	return indices;
 }

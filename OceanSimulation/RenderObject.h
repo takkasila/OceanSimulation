@@ -9,6 +9,7 @@ private:
 	vector<GLfloat> vertices;
 	vector<GLfloat> normals;
 	vector<GLfloat> colors;
+	vector<unsigned int> indices;
 
 	void SetByArray(GLfloat data [], int length, vector<GLfloat> &targetData, GLuint &targetBuffer);
 	void SetByVector(vector<GLfloat> data, vector<GLfloat> &targetData, GLuint &targetBuffer);
@@ -18,6 +19,7 @@ public:
 	GLuint vertices_buffer;
 	GLuint normals_buffer;
 	GLuint colors_buffer;
+	GLuint indices_buffer;
 	
 	void SetVertex(GLfloat vertices[], int length);
 	void SetVertex(vector<GLfloat> vertices);
@@ -30,6 +32,8 @@ public:
 	void SetColor(GLfloat colors [], int length);
 	void SetColor(vector<GLfloat> colors);
 	void SetColor(vector<vec3> colors);
+
+	void SetIndices(vector<unsigned int> indices);
 };
 
 #endif

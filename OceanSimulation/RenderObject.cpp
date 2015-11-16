@@ -74,3 +74,12 @@ void RenderObject::SetColor(vector<vec3> colors)
 {
 	SetByVectorVec3(colors, this->colors, colors_buffer);
 }
+
+
+void RenderObject::SetIndices(vector<unsigned int> indices)
+{
+	this->indices = indices;
+	glGenBuffers(1, &indices_buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_buffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * this->indices.size(), &indices[0], GL_STATIC_DRAW);
+}

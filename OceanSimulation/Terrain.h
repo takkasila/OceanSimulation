@@ -6,15 +6,17 @@ using namespace glm;
 class Terrain
 {
 private:
-	int width;
-	int length;
+	int x_width;
+	int z_width;
 	vector<vec3> vertices;
+	vector<unsigned int> indices;
 
 public:
 	Terrain(int width, int length, int spacing);
-	int GetWidth();
-	int GetLength();
+	int GetWidth_X();
+	int GetWidth_Z();
 	vector<vec3> GetVertices();
+	vector<unsigned int> GetIndices();
 	int spacing;
 };
 #endif
