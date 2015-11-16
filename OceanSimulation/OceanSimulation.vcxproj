@@ -96,7 +96,6 @@
   <ItemGroup>
     <None Include="g_normals_visualize.glsl" />
     <None Include="f_input_color.glsl" />
-    <None Include="g_house.glsl" />
     <None Include="v_normals_visualize.glsl" />
     <None Include="v_simple.glsl" />
   </ItemGroup>

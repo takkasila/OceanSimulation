@@ -16,9 +16,6 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{d669745d-90aa-444b-87e6-e55316497197}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shader\House">
-      <UniqueIdentifier>{514812b8-abd3-48fa-88af-d67f4ec72973}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shader\Utility">
       <UniqueIdentifier>{40df9adc-b364-4a64-85d8-c272e83f4f47}</UniqueIdentifier>
     </Filter>
@@ -63,9 +60,6 @@
     </None>
     <None Include="f_input_color.glsl">
       <Filter>Shader\Simple</Filter>
-    </None>
-    <None Include="g_house.glsl">
-      <Filter>Shader\House</Filter>
     </None>
     <None Include="v_simple.glsl">
       <Filter>Shader\Simple</Filter>
