@@ -8,6 +8,7 @@
 
 #include "LoadShader.h"
 #include "Controls.h"
+#include "RenderObject.h"
 
 using namespace glm;
 using namespace std;
@@ -49,6 +50,7 @@ int main()
 	glBindVertexArray(VertexArrayID);
 
 	// Testing PLANE
+	RenderObject plane;
 	GLfloat plane_v_data[] = {
 		-1, 0, -1,
 		-1, 0, 1,
@@ -57,10 +59,6 @@ int main()
 		1, 0, 1,
 		1, 0, -1
 	};
-	GLuint plane_v_buffer;
-	glGenBuffers(1, &plane_v_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_v_data), plane_v_data, GL_STATIC_DRAW);
 
 	GLfloat plane_colors [] = {
 		1.0f, 0.0f, 0.0f,
@@ -70,10 +68,7 @@ int main()
 		1.0f, 0.0f, 0.0f,
 		1.0f, 0.0f, 0.0f
 	};
-	GLuint plane_color_buffer;
-	glGenBuffers(1, &plane_color_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_colors), plane_colors, GL_STATIC_DRAW);
+
 	GLuint isUseColorID = glGetUniformLocation(shaderProgramID, "isUseColor");
 
 	GLfloat plane_normal [] = {
@@ -84,10 +79,10 @@ int main()
 		0, 1, 0,
 		0, 1, 0
 	};
-	GLuint plane_normal_buffer;
-	glGenBuffers(1, &plane_normal_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, plane_normal_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_normal), plane_normal, GL_STATIC_DRAW);
+
+	plane.SetVertex(plane_v_data, sizeof(plane_v_data)/sizeof(GLfloat));
+	plane.SetColor(plane_colors, sizeof(plane_colors)/sizeof(GLfloat));
+	plane.SetNormal(plane_normal, sizeof(plane_normal)/sizeof(GLfloat));
 
 	GLuint mvp_uniform_block;
 	glGenBuffers(1, &mvp_uniform_block);
@@ -106,11 +101,11 @@ int main()
 		glUniform1i(isUseColorID, GL_TRUE);
 
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, plane.vertices_buffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, plane_color_buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, plane.colors_buffer);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -119,11 +114,11 @@ int main()
 		glUseProgram(normalVisualizeShaderProgramID);
 		
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, plane_v_buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, plane.vertices_buffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, plane_normal_buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, plane.normals_buffer);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FLOAT, 0, (void*) 0);
 
 		glDrawArrays(GL_TRIANGLES, 0, 12);
