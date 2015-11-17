@@ -43,7 +43,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Terrain oceanObj(100, 100, 0.5);
+	Terrain oceanObj(256, 256, 0.1);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetIndices(oceanObj.GetIndices());
@@ -61,6 +61,7 @@ int main()
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 2, NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, time_uniform_block);
 
+	GLuint centerLocationID = glGetUniformLocation(shaderProgramID, "center");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
 	do
@@ -73,6 +74,7 @@ int main()
 		SendUniformTIME();
 
 		glUseProgram(shaderProgramID);
+		glUniform2f(centerLocationID, oceanObj.GetWidth_X()*oceanObj.spacing / 2.0f, oceanObj.GetWidth_Z()*oceanObj.spacing / 2.0f);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, oceanObjBuffer.vertices_buffer);
