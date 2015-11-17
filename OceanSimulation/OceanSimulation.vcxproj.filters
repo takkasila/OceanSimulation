@@ -22,6 +22,9 @@
     <Filter Include="Shader\Simple">
       <UniqueIdentifier>{102aaf33-1315-409f-ab01-75a9e0592b5f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\Ocean">
+      <UniqueIdentifier>{1a6f6f84-814b-4c17-a58b-c8f2f7e93b7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -66,6 +69,9 @@
     </None>
     <None Include="v_normals_visualize.glsl">
       <Filter>Shader\Utility</Filter>
+    </None>
+    <None Include="v_ocean.glsl">
+      <Filter>Shader\Ocean</Filter>
     </None>
   </ItemGroup>
 </Project>

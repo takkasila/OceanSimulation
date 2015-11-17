@@ -10,7 +10,7 @@ using namespace glm;
 #include "Terrain.h"
 
 #define INDEX(x, z, x_width) (x+z*x_width)
-Terrain::Terrain(int x_width, int z_width, int spacing)
+Terrain::Terrain(int x_width, int z_width, GLfloat spacing)
 {
 
 	this->x_width = x_width;

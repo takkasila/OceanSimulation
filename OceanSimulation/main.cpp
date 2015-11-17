@@ -27,6 +27,7 @@ vec3 BGColor(0.5, 0.5, 0.5);
 
 int InitProgram();
 void SendUniformMVP();
+void SendUniformTIME();
 
 int main()
 {
@@ -34,7 +35,7 @@ int main()
 		return -1;
 
 	ShaderGenerator shaderProgram;
-	shaderProgram.AddShader("v_simple.glsl", GL_VERTEX_SHADER);
+	shaderProgram.AddShader("v_ocean.glsl", GL_VERTEX_SHADER);
 	shaderProgram.AddShader("f_input_color.glsl", GL_FRAGMENT_SHADER);
 	GLuint shaderProgramID = shaderProgram.LinkProgram();
 
@@ -42,7 +43,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Terrain oceanObj(50, 50, 1);
+	Terrain oceanObj(100, 100, 0.5);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetIndices(oceanObj.GetIndices());
@@ -54,13 +55,23 @@ int main()
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4) * 3, NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, mvp_uniform_block);
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	GLuint time_uniform_block;
+	glGenBuffers(1, &time_uniform_block);
+	glBindBuffer(GL_UNIFORM_BUFFER, time_uniform_block);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 2, NULL, GL_STATIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, time_uniform_block);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glfwSetTime(0);
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
 		SendUniformMVP();
-		
+		glBindBuffer(GL_UNIFORM_BUFFER, time_uniform_block);
+		SendUniformTIME();
+
 		glUseProgram(shaderProgramID);
 
 		glEnableVertexAttribArray(0);
@@ -135,4 +146,12 @@ void SendUniformMVP()
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), &view[0][0]);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4) * 2, sizeof(mat4), &projection[0][0]);
 
+}
+
+void SendUniformTIME()
+{
+	float time = glfwGetTime();
+	float time_magnitude = 1.1;
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float), &time);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(float), sizeof(float), &time_magnitude);
 }

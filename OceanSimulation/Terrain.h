@@ -12,12 +12,12 @@ private:
 	vector<unsigned int> indices;
 
 public:
-	Terrain(int width, int length, int spacing);
+	Terrain(int width, int length, GLfloat spacing);
 	int GetWidth_X();
 	int GetWidth_Z();
 	vector<vec3> GetVertices();
 	vector<unsigned int> GetIndices();
-	int spacing;
+	GLfloat spacing;
 };
 #endif
 
