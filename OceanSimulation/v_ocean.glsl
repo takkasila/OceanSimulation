@@ -1,9 +1,10 @@
 #version 420 core
 
-layout(location = 0) in vec3 v_pos_modelspace;
+layout(location = 0) in vec3 v_pos;
 layout(location = 1) in vec3 normal;
 
-uniform vec2 center;
+uniform float time;
+
 layout(std140, binding = 0) uniform MVP
 {
   mat4 model;
@@ -11,10 +12,14 @@ layout(std140, binding = 0) uniform MVP
   mat4 projection;
 };
 
-layout(std140, binding = 1) uniform TIME
+layout(std140, binding = 1) uniform WaveParameters
 {
-  float time;
-  float time_magnitude;
+  int WaveNumber;
+  float GlobalSteepness;
+  float WaveLength;
+  float Speed;
+  float KAmpOverLen;
+  vec2 WaveDir;
 };
 
 out VS_OUT
@@ -23,10 +28,23 @@ out VS_OUT
   vec3 normal;
 }vs_out;
 
+#define M_PI 3.1415926535897932384626433832795
 void main()
 {
-  float height = sin(sqrt(pow(v_pos_modelspace.x - center.x, 2) + pow(v_pos_modelspace.z - center.y, 2)) + time*time_magnitude);
-  vec4 newPos = vec4(v_pos_modelspace.x, height, v_pos_modelspace.z, 1);
-  gl_Position = projection * view * model * newPos;
+
+  float Amplitude = WaveLength * KAmpOverLen;
+  float Omega = 2*M_PI / WaveLength;
+  float Phase = Speed * Omega;
+  float Steepness = GlobalSteepness/(Omega * Amplitude * WaveNumber);
+
+  float CosTerm = cos(Omega * dot(WaveDir, v_pos.xz) + Phase * time);
+
+  vec3 newPos;
+
+  newPos.x = v_pos.x + (Steepness * Amplitude * WaveDir.x * CosTerm);
+  newPos.z = v_pos.z + (Steepness * Amplitude * WaveDir.y * CosTerm);
+  newPos.y = Amplitude * sin(Omega * dot(WaveDir, v_pos.xz) + Phase * time);
+
+  gl_Position = projection * view * model * vec4(newPos, 1);
   vs_out.normal = normal;
 }

@@ -27,7 +27,7 @@ vec3 BGColor(0.5, 0.5, 0.5);
 
 int InitProgram();
 void SendUniformMVP();
-void SendUniformTIME();
+void SendUniformWaveParameters();
 
 int main()
 {
@@ -55,26 +55,28 @@ int main()
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4) * 3, NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, mvp_uniform_block);
 
-	GLuint time_uniform_block;
-	glGenBuffers(1, &time_uniform_block);
-	glBindBuffer(GL_UNIFORM_BUFFER, time_uniform_block);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 2, NULL, GL_STATIC_DRAW);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 1, time_uniform_block);
+	GLuint wave_uniform_block;
+	glGenBuffers(1, &wave_uniform_block);
+	glBindBuffer(GL_UNIFORM_BUFFER, wave_uniform_block);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 4 + sizeof(vec2), NULL, GL_STATIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, wave_uniform_block);
 
-	GLuint centerLocationID = glGetUniformLocation(shaderProgramID, "center");
+	GLuint timeID = glGetUniformLocation(shaderProgramID, "time");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glUseProgram(shaderProgramID);
+
+		glUniform1f(timeID, glfwGetTime());
+
 		glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
 		SendUniformMVP();
-		glBindBuffer(GL_UNIFORM_BUFFER, time_uniform_block);
-		SendUniformTIME();
-
-		glUseProgram(shaderProgramID);
-		glUniform2f(centerLocationID, oceanObj.GetWidth_X()*oceanObj.spacing / 2.0f, oceanObj.GetWidth_Z()*oceanObj.spacing / 2.0f);
+		glBindBuffer(GL_UNIFORM_BUFFER, wave_uniform_block);
+		SendUniformWaveParameters();
+		
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, oceanObjBuffer.vertices_buffer);
@@ -150,10 +152,19 @@ void SendUniformMVP()
 
 }
 
-void SendUniformTIME()
+void SendUniformWaveParameters()
 {
-	float time = glfwGetTime();
-	float time_magnitude = 1.1;
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float), &time);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(float), sizeof(float), &time_magnitude);
+	int WaveNumber = 1;
+	float GlobalSteepness = 0.6;	// ragne from 0 to 1
+	float WaveLength = 5;
+	float Speed = sqrt(9.81 * 2 * pi<double>() / WaveLength);
+	float KAmpOverLen = 0.2;
+	vec2 WaveDir(0, 1);
+
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(int), &WaveNumber);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int), sizeof(float), &GlobalSteepness);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float), sizeof(float), &WaveLength);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 2, sizeof(float), &Speed);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 3, sizeof(float), &KAmpOverLen);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 4, sizeof(vec2), &WaveDir);
 }
