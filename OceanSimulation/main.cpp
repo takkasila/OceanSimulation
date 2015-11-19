@@ -155,11 +155,12 @@ void SendUniformMVP()
 void SendUniformWaveParameters()
 {
 	int WaveNumber = 1;
-	float GlobalSteepness = 0.6;	// ragne from 0 to 1
-	float WaveLength = 5;
+	float GlobalSteepness = 0.7;	// ragne from 0 to 1
+	float WaveLength = 8;
 	float Speed = sqrt(9.81 * 2 * pi<double>() / WaveLength);
-	float KAmpOverLen = 0.2;
-	vec2 WaveDir(0, 1);
+	float KAmpOverLen =0.05;
+	vec2 WaveDir1(0.4, 1);
+	vec2 WaveDir = normalize(WaveDir1);
 
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(int), &WaveNumber);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int), sizeof(float), &GlobalSteepness);
@@ -167,4 +168,5 @@ void SendUniformWaveParameters()
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 2, sizeof(float), &Speed);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 3, sizeof(float), &KAmpOverLen);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 4, sizeof(vec2), &WaveDir);
+
 }

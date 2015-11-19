@@ -19,7 +19,9 @@ layout(std140, binding = 1) uniform WaveParameters
   float WaveLength;
   float Speed;
   float KAmpOverLen;
-  vec2 WaveDir;
+  // vec2 WaveDir;
+  float WaveX;
+  float WaveY;
 };
 
 out VS_OUT
@@ -37,13 +39,13 @@ void main()
   float Phase = Speed * Omega;
   float Steepness = GlobalSteepness/(Omega * Amplitude * WaveNumber);
 
-  float CosTerm = cos(Omega * dot(WaveDir, v_pos.xz) + Phase * time);
+  float CosTerm = cos(Omega * dot(vec2(WaveX, WaveY), v_pos.xz) + Phase * time);
 
   vec3 newPos;
 
-  newPos.x = v_pos.x + (Steepness * Amplitude * WaveDir.x * CosTerm);
-  newPos.z = v_pos.z + (Steepness * Amplitude * WaveDir.y * CosTerm);
-  newPos.y = Amplitude * sin(Omega * dot(WaveDir, v_pos.xz) + Phase * time);
+  newPos.x = v_pos.x + (Steepness * Amplitude * WaveX * CosTerm);
+  newPos.z = v_pos.z + (Steepness * Amplitude * WaveY * CosTerm);
+  newPos.y = Amplitude * sin(Omega * dot(vec2(WaveX, WaveY), v_pos.xz) + Phase * time);
 
   gl_Position = projection * view * model * vec4(newPos, 1);
   vs_out.normal = normal;
