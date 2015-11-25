@@ -29,6 +29,17 @@ int InitProgram();
 void SendUniformMVP();
 void SendUniformWaveParameters();
 
+
+struct WavePar
+{
+	vec2 WaveDir;
+	int WaveNumber;
+	float GlobalSteepness;
+	float WaveLength;
+	float Speed;
+	float KAmpOverLen;
+	float padding;
+};
 int main()
 {
 	if (InitProgram() != 0)
@@ -149,24 +160,34 @@ void SendUniformMVP()
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mat4), &model[0][0]);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), &view[0][0]);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4) * 2, sizeof(mat4), &projection[0][0]);
-
 }
 
 void SendUniformWaveParameters()
 {
 	int WaveNumber = 1;
-	float GlobalSteepness = 0.7;	// ragne from 0 to 1
+	float GlobalSteepness = 0.6;	// ragne from 0 to 1
 	float WaveLength = 8;
 	float Speed = sqrt(9.81 * 2 * pi<double>() / WaveLength);
+
 	float KAmpOverLen =0.05;
-	vec2 WaveDir1(0.4, 1);
-	vec2 WaveDir = normalize(WaveDir1);
+	vec2 WaveDir = normalize(vec2(1, 0.5));
 
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(int), &WaveNumber);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int), sizeof(float), &GlobalSteepness);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float), sizeof(float), &WaveLength);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 2, sizeof(float), &Speed);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 3, sizeof(float), &KAmpOverLen);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 4, sizeof(vec2), &WaveDir);
 
+	WavePar waves[2];
+	waves[1].GlobalSteepness = GlobalSteepness;
+	waves[1].KAmpOverLen = KAmpOverLen;
+	waves[1].Speed = Speed;
+	waves[1].WaveDir = WaveDir;
+	waves[1].WaveLength = WaveLength;
+	waves[1].WaveNumber = WaveNumber;
+
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(WavePar) * 2, &waves[0], GL_STATIC_DRAW);
+
+	/*glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(vec2), &WaveDir);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2), sizeof(int), &WaveNumber);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2)+ sizeof(int), sizeof(float), &GlobalSteepness);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2)+ sizeof(int) + sizeof(float), sizeof(float), &WaveLength);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2)+ sizeof(int) + sizeof(float) * 2, sizeof(float), &Speed);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2)+ sizeof(int) + sizeof(float) * 3, sizeof(float), &KAmpOverLen);
+*/
 }
