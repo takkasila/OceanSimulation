@@ -9,7 +9,7 @@
 #include "LoadShader.h"
 #include "Controls.h"
 #include "RenderObject.h"
-#include "Terrain.h"
+#include "Ocean.h"
 
 using namespace glm;
 using namespace std;
@@ -27,19 +27,8 @@ vec3 BGColor(0.5, 0.5, 0.5);
 
 int InitProgram();
 void SendUniformMVP();
-void SendUniformWaveParameters();
+void SendUniformWaveParameters(Ocean oceanObj);
 
-
-struct WavePar
-{
-	vec2 WaveDir;
-	int WaveNumber;
-	float GlobalSteepness;
-	float WaveLength;
-	float Speed;
-	float KAmpOverLen;
-	float padding;
-};
 int main()
 {
 	if (InitProgram() != 0)
@@ -54,7 +43,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Terrain oceanObj(256, 256, 0.1);
+	Ocean oceanObj(256, 256, 0.1);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetIndices(oceanObj.GetIndices());
@@ -73,6 +62,7 @@ int main()
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, wave_uniform_block);
 
 	GLuint timeID = glGetUniformLocation(shaderProgramID, "time");
+	GLuint waveNumberID = glGetUniformLocation(shaderProgramID, "waveNumber");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
 	do
@@ -82,11 +72,12 @@ int main()
 		glUseProgram(shaderProgramID);
 
 		glUniform1f(timeID, glfwGetTime());
+		glUniform1i(waveNumberID, WAVE_NUMBER);
 
 		glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
 		SendUniformMVP();
 		glBindBuffer(GL_UNIFORM_BUFFER, wave_uniform_block);
-		SendUniformWaveParameters();
+		SendUniformWaveParameters(oceanObj);
 		
 
 		glEnableVertexAttribArray(0);
@@ -162,32 +153,7 @@ void SendUniformMVP()
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4) * 2, sizeof(mat4), &projection[0][0]);
 }
 
-void SendUniformWaveParameters()
+void SendUniformWaveParameters(Ocean oceanObj)
 {
-	int WaveNumber = 1;
-	float GlobalSteepness = 0.6;	// ragne from 0 to 1
-	float WaveLength = 8;
-	float Speed = sqrt(9.81 * 2 * pi<double>() / WaveLength);
-
-	float KAmpOverLen =0.05;
-	vec2 WaveDir = normalize(vec2(1, 0.5));
-
-
-	WavePar waves[2];
-	waves[1].GlobalSteepness = GlobalSteepness;
-	waves[1].KAmpOverLen = KAmpOverLen;
-	waves[1].Speed = Speed;
-	waves[1].WaveDir = WaveDir;
-	waves[1].WaveLength = WaveLength;
-	waves[1].WaveNumber = WaveNumber;
-
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(WavePar) * 2, &waves[0], GL_STATIC_DRAW);
-
-	/*glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(vec2), &WaveDir);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2), sizeof(int), &WaveNumber);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2)+ sizeof(int), sizeof(float), &GlobalSteepness);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2)+ sizeof(int) + sizeof(float), sizeof(float), &WaveLength);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2)+ sizeof(int) + sizeof(float) * 2, sizeof(float), &Speed);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(vec2)+ sizeof(int) + sizeof(float) * 3, sizeof(float), &KAmpOverLen);
-*/
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(WaveParameter) * WAVE_NUMBER, &oceanObj.waves[0], GL_STATIC_DRAW);
 }

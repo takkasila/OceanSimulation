@@ -7,4 +7,4 @@ Currently support only Windows.
 Simply clone the project and open solution file in Visual Studio
 
 ## Project Status
-- Animated Sin wave
+- Animated Gerstner wave

@@ -1,9 +1,12 @@
 #version 420 core
+#define MAX_WAVE_NUMBER 50
+#define M_PI 3.1415926535897932384626433832795
 
 layout(location = 0) in vec3 v_pos;
 layout(location = 1) in vec3 normal;
 
 uniform float time;
+uniform int waveNumber;
 
 layout(std140, binding = 0) uniform MVP
 {
@@ -15,7 +18,6 @@ layout(std140, binding = 0) uniform MVP
 struct WavePar
 {
   vec2 WaveDir;
-  int WaveNumber;
   float GlobalSteepness;
   float WaveLength;
   float Speed;
@@ -25,55 +27,34 @@ struct WavePar
 
 layout(std140, binding = 1) uniform WaveParameters
 {
-  // vec2 WaveDir;
-  // int WaveNumber;
-  // float GlobalSteepness;
-  // float WaveLength;
-  // float Speed;
-  // float KAmpOverLen;
-  WavePar waves[2];
+  WavePar waves[MAX_WAVE_NUMBER];
 };
 
 out VS_OUT
 {
   vec3 color;
   vec3 normal;
-  vec2 WaveDir;
 }vs_out;
 
-#define M_PI 3.1415926535897932384626433832795
 void main()
 {
+  vec4 pos_res = vec4(0);
+  for(int i = 0; i < waveNumber; i++)
+  {
+    float Amplitude = waves[i].WaveLength * waves[i].KAmpOverLen;
+    float Omega = 2*M_PI / waves[i].WaveLength;
+    float Phase = waves[i].Speed * Omega;
+    float Steepness = waves[i].GlobalSteepness/(Omega * Amplitude * waveNumber);
+    float CosTerm = cos(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
 
+    // Compute Position
+    vec3 newPos;
+    newPos.x = v_pos.x + (Steepness * Amplitude * waves[i].WaveDir.x * CosTerm);
+    newPos.z = v_pos.z + (Steepness * Amplitude * waves[i].WaveDir.y * CosTerm);
+    newPos.y = Amplitude * sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
 
-  vec2 WaveD = waves[1].WaveDir;
-  int WaveNumber = waves[1].WaveNumber;
-  float GlobalSteepness = waves[1].GlobalSteepness;
-  float WaveLength = waves[1].WaveLength;
-  float Speed = waves[1].Speed;
-  float KAmpOverLen = waves[1].KAmpOverLen;
+    pos_res += projection * view * model * vec4(newPos, 1);
+  }
+  gl_Position = pos_res;
 
-
-  float Amplitude = WaveLength * KAmpOverLen;
-  float Omega = 2*M_PI / WaveLength;
-  float Phase = Speed * Omega;
-  float Steepness = GlobalSteepness/(Omega * Amplitude * WaveNumber);
-
-  float CosTerm = cos(Omega * dot(WaveD, v_pos.xz) + Phase * time);
-
-  // Compute Position
-  vec3 newPos;
-  newPos.x = v_pos.x + (Steepness * Amplitude * WaveD.x * CosTerm);
-  newPos.z = v_pos.z + (Steepness * Amplitude * WaveD.y * CosTerm);
-  newPos.y = Amplitude * sin(Omega * dot(WaveD, v_pos.xz) + Phase * time);
-
-  gl_Position = projection * view * model * vec4(newPos, 1);
-
-  // Compute Normal
-  vec3 normal;
-  // normal.x = -(WaveX);
-
-
-  vs_out.WaveDir = WaveD;
-  //vs_out.normal = normal;
 }

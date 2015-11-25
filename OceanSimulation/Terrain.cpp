@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string>
 #include <vector>
 #include "GLEW\glew.h"
 #include "glm\glm.hpp"

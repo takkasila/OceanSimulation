@@ -84,12 +84,14 @@
     <ClCompile Include="Controls.cpp" />
     <ClCompile Include="LoadShader.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Ocean.cpp" />
     <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Controls.h" />
     <ClInclude Include="LoadShader.h" />
+    <ClInclude Include="Ocean.h" />
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="Terrain.h" />
   </ItemGroup>
