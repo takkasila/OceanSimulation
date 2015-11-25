@@ -63,6 +63,7 @@ int main()
 
 	GLuint timeID = glGetUniformLocation(shaderProgramID, "time");
 	GLuint waveNumberID = glGetUniformLocation(shaderProgramID, "waveNumber");
+	GLuint globalSteepnessID = glGetUniformLocation(shaderProgramID, "globalSteepness");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
 	do
@@ -72,7 +73,8 @@ int main()
 		glUseProgram(shaderProgramID);
 
 		glUniform1f(timeID, glfwGetTime());
-		glUniform1i(waveNumberID, WAVE_NUMBER);
+		glUniform1i(waveNumberID, oceanObj.WaveNumber);
+		glUniform1f(globalSteepnessID, oceanObj.GlobalSteepness);
 
 		glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
 		SendUniformMVP();
@@ -155,5 +157,5 @@ void SendUniformMVP()
 
 void SendUniformWaveParameters(Ocean oceanObj)
 {
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(WaveParameter) * WAVE_NUMBER, &oceanObj.waves[0], GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(WaveParameter) * MAX_WAVE_NUMBER, &oceanObj.waves[0], GL_STATIC_DRAW);
 }

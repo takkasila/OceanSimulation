@@ -2,23 +2,25 @@
 #define OCEAN_H
 #include "Terrain.h"
 
-#define WAVE_NUMBER 1
+#define MAX_WAVE_NUMBER 50
 struct WaveParameter
 {
 	vec2 WaveDir;
-	float GlobalSteepness;
+	//float GlobalSteepness;
 	float WaveLength;
-	
 	float Speed;
+	
 	float KAmpOverLen;
 	float padding;
 	float padding2;
+	float padding3;
 };
 class Ocean : public Terrain
 {
 public:
-	int waveNumber;
-	WaveParameter waves[WAVE_NUMBER];
+	float WaveNumber;
+	float GlobalSteepness;
+	WaveParameter waves[MAX_WAVE_NUMBER];
 	Ocean(int width, int length, GLfloat spacing);
 };
 #endif
