@@ -6,8 +6,8 @@ layout(location = 0) in vec3 v_pos;
 layout(location = 1) in vec3 normal;
 
 uniform float time;
-uniform int waveNumber;
-uniform float globalSteepness;
+uniform int WaveNumber;
+uniform float GlobalSteepness;
 
 layout(std140, binding = 0) uniform MVP
 {
@@ -19,7 +19,6 @@ layout(std140, binding = 0) uniform MVP
 struct WavePar
 {
   vec2 WaveDir;
-  // float GlobalSteepness;
   float WaveLength;
   float Speed;
   float KAmpOverLen;
@@ -40,12 +39,12 @@ out VS_OUT
 void main()
 {
   vec4 pos_res = vec4(0);
-  for(int i = 0; i < waveNumber; i++)
+  for(int i = 0; i < WaveNumber; i++)
   {
     float Amplitude = waves[i].WaveLength * waves[i].KAmpOverLen;
     float Omega = 2*M_PI / waves[i].WaveLength;
     float Phase = waves[i].Speed * Omega;
-    float Steepness = globalSteepness/(Omega * Amplitude * waveNumber);
+    float Steepness = GlobalSteepness/(Omega * Amplitude * WaveNumber);
     float CosTerm = cos(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
 
     // Compute Position

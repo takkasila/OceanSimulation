@@ -6,7 +6,6 @@
 struct WaveParameter
 {
 	vec2 WaveDir;
-	//float GlobalSteepness;
 	float WaveLength;
 	float Speed;
 	

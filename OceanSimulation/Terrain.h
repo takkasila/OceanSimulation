@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace glm;
+
 class Terrain
 {
 private:

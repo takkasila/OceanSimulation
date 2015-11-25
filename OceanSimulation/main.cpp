@@ -62,8 +62,8 @@ int main()
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, wave_uniform_block);
 
 	GLuint timeID = glGetUniformLocation(shaderProgramID, "time");
-	GLuint waveNumberID = glGetUniformLocation(shaderProgramID, "waveNumber");
-	GLuint globalSteepnessID = glGetUniformLocation(shaderProgramID, "globalSteepness");
+	GLuint waveNumberID = glGetUniformLocation(shaderProgramID, "WaveNumber");
+	GLuint globalSteepnessID = glGetUniformLocation(shaderProgramID, "GlobalSteepness");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
 	do
