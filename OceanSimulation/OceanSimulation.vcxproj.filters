@@ -73,9 +73,6 @@
     <None Include="v_simple.glsl">
       <Filter>Shader\Simple</Filter>
     </None>
-    <None Include="v_normals_visualize.glsl">
-      <Filter>Shader\Utility</Filter>
-    </None>
     <None Include="v_ocean.glsl">
       <Filter>Shader\Ocean</Filter>
     </None>

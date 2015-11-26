@@ -39,11 +39,17 @@ int main()
 	shaderProgram.AddShader("f_input_color.glsl", GL_FRAGMENT_SHADER);
 	GLuint shaderProgramID = shaderProgram.LinkProgram();
 
+	ShaderGenerator normalVisualShaderProgram;
+	normalVisualShaderProgram.AddShader("v_ocean.glsl", GL_VERTEX_SHADER);
+	normalVisualShaderProgram.AddShader("g_normals_visualize.glsl", GL_GEOMETRY_SHADER);
+	normalVisualShaderProgram.AddShader("f_input_color.glsl", GL_FRAGMENT_SHADER);
+	GLuint normalVisualShaderProgramID = normalVisualShaderProgram.LinkProgram();
+
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Ocean oceanObj(256, 256, 0.1);
+	Ocean oceanObj(128, 128, .25);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetIndices(oceanObj.GetIndices());
@@ -61,9 +67,9 @@ int main()
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 4 + sizeof(vec2), NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, wave_uniform_block);
 
-	GLuint timeID = glGetUniformLocation(shaderProgramID, "time");
-	GLuint waveNumberID = glGetUniformLocation(shaderProgramID, "WaveNumber");
-	GLuint globalSteepnessID = glGetUniformLocation(shaderProgramID, "GlobalSteepness");
+	GLuint timeID;
+	GLuint waveNumberID;
+	GLuint globalSteepnessID;
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
 	do
@@ -72,6 +78,9 @@ int main()
 
 		glUseProgram(shaderProgramID);
 
+		timeID = glGetUniformLocation(shaderProgramID, "time");
+		waveNumberID = glGetUniformLocation(shaderProgramID, "WaveNumber");
+		globalSteepnessID = glGetUniformLocation(shaderProgramID, "GlobalSteepness");
 		glUniform1f(timeID, glfwGetTime());
 		glUniform1i(waveNumberID, oceanObj.WaveNumber);
 		glUniform1f(globalSteepnessID, oceanObj.GlobalSteepness);
@@ -81,6 +90,27 @@ int main()
 		glBindBuffer(GL_UNIFORM_BUFFER, wave_uniform_block);
 		SendUniformWaveParameters(oceanObj);
 		
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, oceanObjBuffer.vertices_buffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, oceanObjBuffer.indices_buffer);
+		glDrawElements(GL_TRIANGLES, oceanObj.GetIndices().size(), GL_UNSIGNED_INT, (void*) 0);
+
+		// Normal
+		glUseProgram(normalVisualShaderProgramID);
+
+		timeID = glGetUniformLocation(normalVisualShaderProgramID, "time");
+		waveNumberID = glGetUniformLocation(normalVisualShaderProgramID, "WaveNumber");
+		globalSteepnessID = glGetUniformLocation(normalVisualShaderProgramID, "GlobalSteepness");
+		glUniform1f(timeID, glfwGetTime());
+		glUniform1i(waveNumberID, oceanObj.WaveNumber);
+		glUniform1f(globalSteepnessID, oceanObj.GlobalSteepness);
+
+		glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
+		SendUniformMVP();
+		glBindBuffer(GL_UNIFORM_BUFFER, wave_uniform_block);
+		SendUniformWaveParameters(oceanObj);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, oceanObjBuffer.vertices_buffer);
@@ -89,6 +119,7 @@ int main()
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, oceanObjBuffer.indices_buffer);
 		glDrawElements(GL_TRIANGLES, oceanObj.GetIndices().size(), GL_UNSIGNED_INT, (void*) 0);
 
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
@@ -96,6 +127,7 @@ int main()
 
 
 	glDeleteProgram(shaderProgramID);
+	glDeleteProgram(normalVisualShaderProgramID);
 	glfwTerminate();
 	return 0;
 }

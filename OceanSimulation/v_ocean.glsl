@@ -38,7 +38,8 @@ out VS_OUT
 
 void main()
 {
-  vec4 pos_res = vec4(0);
+  vec3 pos_res = vec3(0);
+  vec3 normal_res = vec3(0);
   for(int i = 0; i < WaveNumber; i++)
   {
     float Amplitude = waves[i].WaveLength * waves[i].KAmpOverLen;
@@ -46,6 +47,7 @@ void main()
     float Phase = waves[i].Speed * Omega;
     float Steepness = GlobalSteepness/(Omega * Amplitude * WaveNumber);
     float CosTerm = cos(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
+    float SinTerm = sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
 
     // Compute Position
     vec3 newPos;
@@ -53,8 +55,18 @@ void main()
     newPos.z = v_pos.z + (Steepness * Amplitude * waves[i].WaveDir.y * CosTerm);
     newPos.y = Amplitude * sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
 
-    pos_res += projection * view * model * vec4(newPos, 1);
+    pos_res += newPos;
+
+    // Compute Normal
+    vec3 normal;
+    normal.x = -(waves[i].WaveDir.x * Omega * Amplitude * CosTerm);
+    normal.z = -(waves[i].WaveDir.y * Omega * Amplitude * CosTerm);
+    normal.y = 1-(Steepness * Omega * Amplitude * SinTerm);
+
+    normal_res += normal;
   }
-  gl_Position = pos_res;
+  gl_Position = projection * view * model * vec4(pos_res, 1);
+  vs_out.normal = normalize(normal_res);
+  vs_out.color = vec3(1, 1, 1);
 
 }
