@@ -8,6 +8,8 @@ layout(location = 1) in vec3 normal;
 uniform float time;
 uniform int WaveNumber;
 uniform float GlobalSteepness;
+uniform vec3 LightPosition_worldspace;
+uniform vec3 EyePosition;
 
 layout(std140, binding = 0) uniform MVP
 {
@@ -32,8 +34,10 @@ layout(std140, binding = 1) uniform WaveParameters
 
 out VS_OUT
 {
-  vec3 color;
-  vec3 normal;
+  vec3 position_worldspace;
+  vec3 normal_cameraspace;
+  vec3 eyeDirection_cameraspace;
+  vec3 lightDirection_cameraspace;
 }vs_out;
 
 void main()
@@ -65,8 +69,17 @@ void main()
 
     normal_res += normal;
   }
-  gl_Position = projection * view * model * vec4(pos_res, 1);
-  vs_out.normal = normalize(normal_res);
-  vs_out.color = vec3(1, 1, 1);
+  normal_res = normalize(normal_res);
 
+  gl_Position = projection * view * model * vec4(pos_res, 1);
+
+  vs_out.position_worldspace = (model * vec4(pos_res, 1)).xyz;
+
+  vec3 v_pos_camspace = (view * model * vec4(pos_res, 1)).xyz;
+  vs_out.eyeDirection_cameraspace = EyePosition - v_pos_camspace;
+
+  vec3 light_pos_camspace = (view * vec4(LightPosition_worldspace, 1)).xyz;
+  vs_out.lightDirection_cameraspace = light_pos_camspace + vs_out.eyeDirection_cameraspace;
+
+  vs_out.normal_cameraspace = (view * model * vec4(normal_res,0)).xyz;
 }

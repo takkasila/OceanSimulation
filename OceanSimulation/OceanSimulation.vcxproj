@@ -96,6 +96,7 @@
     <ClInclude Include="Terrain.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="f_ambient_diffuse_specular.glsl" />
     <None Include="g_normals_visualize.glsl" />
     <None Include="f_input_color.glsl" />
     <None Include="v_ocean.glsl" />

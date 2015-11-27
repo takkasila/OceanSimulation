@@ -25,6 +25,9 @@
     <Filter Include="Shader\Ocean">
       <UniqueIdentifier>{1a6f6f84-814b-4c17-a58b-c8f2f7e93b7f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\Basic Light">
+      <UniqueIdentifier>{3caa8ba8-2908-4ff3-8969-b32de3403b35}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -75,6 +78,9 @@
     </None>
     <None Include="v_ocean.glsl">
       <Filter>Shader\Ocean</Filter>
+    </None>
+    <None Include="f_ambient_diffuse_specular.glsl">
+      <Filter>Shader\Basic Light</Filter>
     </None>
   </ItemGroup>
 </Project>

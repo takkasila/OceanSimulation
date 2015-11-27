@@ -12,6 +12,7 @@ using namespace glm;
 
 mat4 ViewMatrix;
 mat4 ProjectionMatrix;
+vec3 position = vec3(0, 2, 5);
 mat4 getViewMatrix()
 {
 	return ViewMatrix;
@@ -20,9 +21,10 @@ mat4 getProjectionMatrix()
 {
 	return ProjectionMatrix;
 }
-
-// Initial 
-vec3 position = vec3(0, 2, 5);
+vec3 getEyePos()
+{
+	return position;
+}
 
 // turn toward -Z
 //float horizontalAngle = (5 / 4.0f)*pi<float>();
