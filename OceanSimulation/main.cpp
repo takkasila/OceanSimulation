@@ -23,7 +23,7 @@ extern "C" {	// Force using Nvidia GPU. Turn 0 if don't want to.
 GLFWwindow* window;
 float window_width = 1200;
 float window_height = 900;
-vec3 BGColor(0.5, 0.5, 0.5);
+vec3 BGColor(226 / 255.0, 243 / 255.0, 241 / 255.0);
 
 int InitProgram();
 void SendUniformMVP();
@@ -72,6 +72,14 @@ int main()
 	GLuint globalSteepnessID;
 	GLuint LightPosition_worldspaceID;
 	GLuint EyePositionID;
+	GLuint DirectionalLight_direction_worldspaceID;
+
+	timeID = glGetUniformLocation(shaderProgramID, "time");
+	waveNumberID = glGetUniformLocation(shaderProgramID, "WaveNumber");
+	globalSteepnessID = glGetUniformLocation(shaderProgramID, "GlobalSteepness");
+	LightPosition_worldspaceID = glGetUniformLocation(shaderProgramID, "LightPosition_worldspace");
+	EyePositionID = glGetUniformLocation(shaderProgramID, "EyePosition");
+	DirectionalLight_direction_worldspaceID = glGetUniformLocation(shaderProgramID, "DirectionalLight_direction_worldspace");
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
@@ -80,19 +88,13 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shaderProgramID);
-
-		timeID = glGetUniformLocation(shaderProgramID, "time");
-		waveNumberID = glGetUniformLocation(shaderProgramID, "WaveNumber");
-		globalSteepnessID = glGetUniformLocation(shaderProgramID, "GlobalSteepness");
-		LightPosition_worldspaceID = glGetUniformLocation(shaderProgramID, "LightPosition_worldspace");
-		EyePositionID = glGetUniformLocation(shaderProgramID, "EyePosition");
-
 		glUniform1f(timeID, glfwGetTime());
 		glUniform1i(waveNumberID, oceanObj.WaveNumber);
 		glUniform1f(globalSteepnessID, oceanObj.GlobalSteepness);
 		glUniform3f(LightPosition_worldspaceID, 128 * .25 / 2, 3, 128 * .25 / 2);
 		vec3 eyePos = getEyePos();
 		glUniform3f(EyePositionID, eyePos.x, eyePos.y, eyePos.z);
+		glUniform3f(DirectionalLight_direction_worldspaceID, -1, -1, -1);
 
 
 		glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
