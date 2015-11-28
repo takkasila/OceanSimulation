@@ -49,7 +49,8 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Ocean oceanObj(128, 128, .25);
+	Ocean oceanObj(128, 128, .5
+		, 0.5, vec2(-6, -1), 8, 0.6, 10);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetIndices(oceanObj.GetIndices());
@@ -81,7 +82,6 @@ int main()
 	EyePositionID = glGetUniformLocation(shaderProgramID, "EyePosition");
 	DirectionalLight_direction_worldspaceID = glGetUniformLocation(shaderProgramID, "DirectionalLight_direction_worldspace");
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
 	do
 	{
@@ -91,7 +91,8 @@ int main()
 		glUniform1f(timeID, glfwGetTime());
 		glUniform1i(waveNumberID, oceanObj.WaveNumber);
 		glUniform1f(globalSteepnessID, oceanObj.GlobalSteepness);
-		glUniform3f(LightPosition_worldspaceID, 128 * .25 / 2, 3, 128 * .25 / 2);
+		
+		glUniform3f(LightPosition_worldspaceID, 128 * .25 / 2, 7, 128 * .25 / 2);
 		vec3 eyePos = getEyePos();
 		glUniform3f(EyePositionID, eyePos.x, eyePos.y, eyePos.z);
 		glUniform3f(DirectionalLight_direction_worldspaceID, -1, -1, -1);

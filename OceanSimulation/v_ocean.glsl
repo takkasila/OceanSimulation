@@ -42,8 +42,8 @@ out VS_OUT
 
 void main()
 {
-  vec3 pos_res = vec3(0);
-  vec3 normal_res = vec3(0);
+  vec3 pos_sum = vec3(0);
+  vec3 normal_sum = vec3(0);
   for(int i = 0; i < WaveNumber; i++)
   {
     float Amplitude = waves[i].WaveLength * waves[i].KAmpOverLen;
@@ -54,22 +54,30 @@ void main()
     float SinTerm = sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
 
     // Compute Position
-    vec3 newPos;
-    newPos.x = v_pos.x + (Steepness * Amplitude * waves[i].WaveDir.x * CosTerm);
-    newPos.z = v_pos.z + (Steepness * Amplitude * waves[i].WaveDir.y * CosTerm);
-    newPos.y = Amplitude * sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
+    vec3 smallPos;
+    smallPos.x = Steepness * Amplitude * waves[i].WaveDir.x * CosTerm;
+    smallPos.z = Steepness * Amplitude * waves[i].WaveDir.y * CosTerm;
+    smallPos.y = Amplitude * sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
 
-    pos_res += newPos;
+    pos_sum += smallPos;
 
     // Compute Normal
-    vec3 normal;
-    normal.x = -(waves[i].WaveDir.x * Omega * Amplitude * CosTerm);
-    normal.z = -(waves[i].WaveDir.y * Omega * Amplitude * CosTerm);
-    normal.y = 1-(Steepness * Omega * Amplitude * SinTerm);
+    vec3 smallNormal;
+    smallNormal.x = waves[i].WaveDir.x * Omega * Amplitude * CosTerm;
+    smallNormal.z = waves[i].WaveDir.y * Omega * Amplitude * CosTerm;
+    smallNormal.y = Steepness * Omega * Amplitude * SinTerm;
 
-    normal_res += normal;
+    normal_sum += smallNormal;
   }
-  normal_res = normalize(normal_res);
+  vec3 pos_res;
+  pos_res.x = v_pos.x + pos_sum.x;
+  pos_res.z = v_pos.z + pos_sum.z;
+  pos_res.y = pos_sum.y;
+
+  normal_sum.x = -normal_sum.x;
+  normal_sum.z = -normal_sum.z;
+  normal_sum.y = 1 - normal_sum.y;
+  normal_sum = normalize(normal_sum);
 
   gl_Position = projection * view * model * vec4(pos_res, 1);
 
@@ -81,5 +89,5 @@ void main()
   vec3 light_pos_camspace = (view * vec4(LightPosition_worldspace, 1)).xyz;
   vs_out.lightDirection_cameraspace = light_pos_camspace + vs_out.eyeDirection_cameraspace;
 
-  vs_out.normal_cameraspace = (view * model * vec4(normal_res,0)).xyz;
+  vs_out.normal_cameraspace = (view * model * vec4(normal_sum,0)).xyz;
 }

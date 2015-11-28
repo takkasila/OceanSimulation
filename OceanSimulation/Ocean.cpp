@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <vector>
+#include <random>
+
 #include "GLEW\glew.h"
 #include "glm\glm.hpp"
 
@@ -8,20 +10,36 @@ using namespace glm;
 
 #include "Ocean.h"
 
-Ocean::Ocean(int width, int length, GLfloat spacing) : Terrain(width, length, spacing)
+Ocean::Ocean(int width, int length, GLfloat spacing, float Amplitude, vec2 WaveDir, float WaveLength, float GlobalSteepness, float WaveNumber) : Terrain(width, length, spacing)
 {
-	float PI = 3.1415926535897932384626433832795;
+	this->Amplitude = Amplitude;
+	this->WaveDir = normalize(WaveDir);
+	this->WaveLength = WaveLength;
+	this->GlobalSteepness = GlobalSteepness;
+	this->WaveNumber = WaveNumber;
 
-	WaveNumber = 1;
-	GlobalSteepness = 0.6;
+	length_distribution = normal_distribution<float>(WaveLength, 0.5);
+	amplitude_distribution = normal_distribution<float>(Amplitude / WaveNumber, 2);
+
+	float radiance = atan2(this->WaveDir.y, this->WaveDir.x) * 180 / PI;
+	direction_radiance_distribution = normal_distribution<float>(radiance, 8);
 	
-	float WaveLength = 8;
-	float Speed = sqrt(9.81 * 2 * PI / WaveLength);
-	float KAmpOverLen = 0.05;
-	vec2 WaveDir = normalize(vec2(1, 0.5));
+	for (int i = 0; i < WaveNumber; i++)
+	{
+		randomWave(waves[i]);
+	}
+}
 
-	waves[0].KAmpOverLen = KAmpOverLen;
-	waves[0].Speed = Speed;
-	waves[0].WaveDir = WaveDir;
-	waves[0].WaveLength = WaveLength;
+void Ocean::randomWave(WaveParameter &wave)
+{
+	float direction_radiance_rand = direction_radiance_distribution(generator);
+	float theta = direction_radiance_rand * PI / 180;
+	wave.WaveDir.x = cos(theta);
+	wave.WaveDir.y = sin(theta);
+
+	wave.WaveLength = length_distribution(generator);
+	wave.KAmpOverLen = amplitude_distribution(generator) / wave.WaveLength;
+	wave.Speed = sqrt(G * 2 * PI / wave.WaveLength);
+
+	int x = 5;
 }

@@ -27,8 +27,8 @@ void main()
   vec3 MaterialSpecularColor = vec3(0.1, 0.0, 0.0);
 
   // Point Light
-  vec3 LightColor = vec3(1000000, 1000000, 1000000);
-  float LightPower = 10;
+  vec3 LightColor = vec3(1, 1, 1);
+  float LightPower = 7000;
 
   float distance_to_light = length(LightPosition_worldspace - fs_in.position_worldspace);
 

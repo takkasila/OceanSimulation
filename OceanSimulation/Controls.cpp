@@ -12,7 +12,7 @@ using namespace glm;
 
 mat4 ViewMatrix;
 mat4 ProjectionMatrix;
-vec3 position = vec3(0, 2, 5);
+vec3 position = vec3(-5, 5, 5);
 mat4 getViewMatrix()
 {
 	return ViewMatrix;
@@ -32,7 +32,7 @@ float horizontalAngle = pi<float>();
 float verticalAngle = -pi<float>() / 5;
 float initialFoV = 45;
 
-float speed = 5;
+float speed = 10;
 float mouseSpeed = 0.005f;
 
 void computeMatricesFromInputs()
