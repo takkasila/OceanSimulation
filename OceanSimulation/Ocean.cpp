@@ -18,11 +18,11 @@ Ocean::Ocean(int width, int length, GLfloat spacing, float Amplitude, vec2 WaveD
 	this->GlobalSteepness = GlobalSteepness;
 	this->WaveNumber = WaveNumber;
 
-	length_distribution = normal_distribution<float>(WaveLength, 0.5);
-	amplitude_distribution = normal_distribution<float>(Amplitude / WaveNumber, 2);
+	length_distribution = normal_distribution<float>(WaveLength, 3);
+	amplitude_distribution = normal_distribution<float>(Amplitude / WaveNumber, .5);
 
 	float radiance = atan2(this->WaveDir.y, this->WaveDir.x) * 180 / PI;
-	direction_radiance_distribution = normal_distribution<float>(radiance, 8);
+	direction_radiance_distribution = normal_distribution<float>(radiance, 13);
 	
 	for (int i = 0; i < WaveNumber; i++)
 	{
