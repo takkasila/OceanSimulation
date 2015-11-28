@@ -7,9 +7,9 @@ Currently support only Windows.
 Simply clone the project and open solution file in Visual Studio
 
 ## Project Status
-- Single animated Gerstner wave
+- Animated Gerstner waves
 
-![](https://drive.google.com/uc?export=view&id=0B8ZrSC4wBsYaQngtSWJNUG5GUjA)
+![](https://drive.google.com/uc?export=view&id=0B8ZrSC4wBsYaQTgtLU9vaXIwdXM)
 
 ## Todo
-- Normal calculation and generic shading
+- Fixing normal distributed parameters
