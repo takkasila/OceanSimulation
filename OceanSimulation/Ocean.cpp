@@ -10,7 +10,8 @@ using namespace glm;
 
 #include "Ocean.h"
 
-Ocean::Ocean(int width, int length, GLfloat spacing, float Amplitude, vec2 WaveDir, float WaveLength, float GlobalSteepness, float WaveNumber) : Terrain(width, length, spacing)
+Ocean::Ocean(int width, int length, GLfloat spacing, int x_instance, int z_instance, float Amplitude, vec2 WaveDir, float WaveLength, float GlobalSteepness, float WaveNumber) 
+	: Terrain(width, length, spacing, x_instance, z_instance)
 {
 	this->Amplitude = Amplitude;
 	this->WaveDir = normalize(WaveDir);
@@ -18,11 +19,16 @@ Ocean::Ocean(int width, int length, GLfloat spacing, float Amplitude, vec2 WaveD
 	this->GlobalSteepness = GlobalSteepness;
 	this->WaveNumber = WaveNumber;
 
-	length_distribution = normal_distribution<float>(WaveLength, 3);
-	amplitude_distribution = normal_distribution<float>(Amplitude / WaveNumber, .5);
+	length_distribution = normal_distribution<float>(WaveLength, 2);
+	amplitude_distribution = normal_distribution<float>(Amplitude / WaveNumber, .3);
 
 	float radiance = atan2(this->WaveDir.y, this->WaveDir.x) * 180 / PI;
-	direction_radiance_distribution = normal_distribution<float>(radiance, 13);
+	direction_radiance_distribution = normal_distribution<float>(radiance, 20);
+
+	float mainSpeed = sqrt(2 * G * PI / WaveLength);
+	float mainOmega = 2 * PI / WaveLength;
+	mainPhase = mainSpeed * mainOmega;
+	phase_distribution = normal_distribution<float>(mainPhase, 1 );
 	
 	for (int i = 0; i < WaveNumber; i++)
 	{
@@ -40,6 +46,7 @@ void Ocean::randomWave(WaveParameter &wave)
 	wave.WaveLength = length_distribution(generator);
 	wave.KAmpOverLen = amplitude_distribution(generator) / wave.WaveLength;
 	wave.Speed = sqrt(G * 2 * PI / wave.WaveLength);
+	wave.Phase = phase_distribution(generator);
 
 	int x = 5;
 }

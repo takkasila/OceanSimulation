@@ -1,15 +1,16 @@
 #version 420 core
 #define MAX_WAVE_NUMBER 50
+#define MAX_INSTACE 100
 #define M_PI 3.1415926535897932384626433832795
 
 layout(location = 0) in vec3 v_pos;
-layout(location = 1) in vec3 normal;
 
 uniform float time;
 uniform int WaveNumber;
 uniform float GlobalSteepness;
 uniform vec3 LightPosition_worldspace;
 uniform vec3 EyePosition;
+uniform vec3 instance_offset[MAX_INSTACE];
 
 layout(std140, binding = 0) uniform MVP
 {
@@ -24,6 +25,7 @@ struct WavePar
   float WaveLength;
   float Speed;
   float KAmpOverLen;
+  float Phase;
 };
 
 
@@ -48,16 +50,16 @@ void main()
   {
     float Amplitude = waves[i].WaveLength * waves[i].KAmpOverLen;
     float Omega = 2*M_PI / waves[i].WaveLength;
-    float Phase = waves[i].Speed * Omega;
-    float Steepness = GlobalSteepness/(Omega * Amplitude * WaveNumber);
-    float CosTerm = cos(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
-    float SinTerm = sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
+    // float Phase = waves[i].Speed * Omega;
+    float Steepness = GlobalSteepness /(Omega * Amplitude * WaveNumber);
+    float CosTerm = cos(Omega * dot(waves[i].WaveDir, v_pos.xz) + waves[i].Phase * time);
+    float SinTerm = sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + waves[i].Phase * time);
 
     // Compute Position
     vec3 smallPos;
     smallPos.x = Steepness * Amplitude * waves[i].WaveDir.x * CosTerm;
     smallPos.z = Steepness * Amplitude * waves[i].WaveDir.y * CosTerm;
-    smallPos.y = Amplitude * sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + Phase * time);
+    smallPos.y = Amplitude * sin(Omega * dot(waves[i].WaveDir, v_pos.xz) + waves[i].Phase * time);
 
     pos_sum += smallPos;
 
@@ -79,7 +81,7 @@ void main()
   normal_sum.y = 1 - normal_sum.y;
   normal_sum = normalize(normal_sum);
 
-  gl_Position = projection * view * model * vec4(pos_res, 1);
+  gl_Position = projection * view * model * vec4(pos_res + instance_offset[gl_InstanceID], 1);
 
   vs_out.position_worldspace = (model * vec4(pos_res, 1)).xyz;
 

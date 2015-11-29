@@ -22,6 +22,7 @@ out vec3 color;
 
 void main()
 {
+
   vec3 MaterialDiffuseColor = vec3(2/255.0, 132/255.0, 130/255.0);
   vec3 MaterialAmbientColor = vec3(0.1, 0.1, 0.1) * MaterialDiffuseColor;
   vec3 MaterialSpecularColor = vec3(0.1, 0.0, 0.0);
@@ -56,5 +57,4 @@ void main()
   float cosTheta_Di = clamp(dot(n, Di_Light_direction), 0, 1);
 
   color += MaterialDiffuseColor * Di_Light_color * Di_Light_power * cosTheta_Di;
-
 }

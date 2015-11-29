@@ -32,6 +32,15 @@ void RenderObject::SetByVectorVec3(vector<vec3> data, vector<GLfloat> &targetDat
 	}
 	SetByVector(targetData, targetData, targetBuffer);
 }
+void RenderObject::SetByVectorVec2(vector<vec2> data, vector<GLfloat> &targetData, GLuint &targetBuffer)
+{
+	for (int i = 0; i < data.size(); i++)
+	{
+		targetData.push_back(data[i].x);
+		targetData.push_back(data[i].y);
+	}
+	SetByVector(targetData, targetData, targetBuffer);
+}
 
 
 void RenderObject::SetVertex(GLfloat vertices [], int length)
@@ -73,6 +82,22 @@ void RenderObject::SetColor(GLfloat colors [], int length)
 void RenderObject::SetColor(vector<vec3> colors)
 {
 	SetByVectorVec3(colors, this->colors, colors_buffer);
+}
+
+
+void RenderObject::SetUVs(vector<GLfloat> UVs)
+{
+	SetByVector(UVs, this->UVs, UVs_buffer);
+}
+
+void RenderObject::SetUVs(GLfloat UVs [], int length)
+{
+	SetByArray(UVs, length, this->UVs, UVs_buffer);
+}
+
+void RenderObject::SetUVs(vector<vec2> UVs)
+{
+	SetByVectorVec2(UVs, this->UVs, UVs_buffer);
 }
 
 
