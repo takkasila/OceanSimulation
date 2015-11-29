@@ -75,13 +75,14 @@ void main()
   pos_res.x = v_pos.x + pos_sum.x;
   pos_res.z = v_pos.z + pos_sum.z;
   pos_res.y = pos_sum.y;
+  pos_res += instance_offset[gl_InstanceID];
 
   normal_sum.x = -normal_sum.x;
   normal_sum.z = -normal_sum.z;
   normal_sum.y = 1 - normal_sum.y;
   normal_sum = normalize(normal_sum);
 
-  gl_Position = projection * view * model * vec4(pos_res + instance_offset[gl_InstanceID], 1);
+  gl_Position = projection * view * model * vec4(pos_res, 1);
 
   vs_out.position_worldspace = (model * vec4(pos_res, 1)).xyz;
 
