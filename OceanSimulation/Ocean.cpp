@@ -38,15 +38,24 @@ Ocean::Ocean(int width, int length, GLfloat spacing, int x_instance, int z_insta
 
 void Ocean::randomWave(WaveParameter &wave)
 {
+	//WaveLength <= OceanSize (in world)
+	// WaveLength = 1/(n * TileSize)
+
+	wave.WaveLength = length_distribution(generator);
+
+	wave.WaveLength = (GetWidth_X() - 1) * GetSpacing();
+	wave.WaveLength /= 2;
+
+
+	wave.KAmpOverLen = amplitude_distribution(generator) / wave.WaveLength;
+	wave.Speed = sqrt(G * 2 * PI / wave.WaveLength);
+	wave.Phase = phase_distribution(generator);
+
 	float direction_radiance_rand = direction_radiance_distribution(generator);
 	float theta = direction_radiance_rand * PI / 180;
 	wave.WaveDir.x = cos(theta);
 	wave.WaveDir.y = sin(theta);
 
-	wave.WaveLength = length_distribution(generator);
-	wave.KAmpOverLen = amplitude_distribution(generator) / wave.WaveLength;
-	wave.Speed = sqrt(G * 2 * PI / wave.WaveLength);
-	wave.Phase = phase_distribution(generator);
-
-	int x = 5;
+	//wave.WaveDir = vec2(1, 0);
+	//wave.WaveDir = normalize(wave.WaveDir);
 }

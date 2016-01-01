@@ -43,7 +43,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Ocean oceanObj(128, 128, .25, 5, 5
+	Ocean oceanObj(128, 128, .25, 10, 10
 		, 1, vec2(-1, -1), 9, 0.8, 8);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
