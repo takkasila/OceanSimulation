@@ -108,3 +108,13 @@ void RenderObject::SetIndices(vector<unsigned int> indices)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_buffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * this->indices.size(), &indices[0], GL_STATIC_DRAW);
 }
+
+void RenderObject::UpdateVertex(vector<vec3> vertices)
+{
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		this->vertices[i * 3] = vertices[i].x;
+		this->vertices[i * 3 + 1] = vertices[i].y;
+		this->vertices[i * 3 + 2] = vertices[i].z;
+	}
+}

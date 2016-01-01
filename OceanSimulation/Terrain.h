@@ -6,21 +6,26 @@ using namespace glm;
 
 class Terrain
 {
+protected:
+	vector<vec3> vertices;
+	vector<vec3> normals;
+
 private:
 	int x_width;
 	int z_width;
-	float spacing;
+	float x_spacing;
+	float z_spacing;
 	int x_instance;
 	int z_instance;
-
-	vector<vec3> vertices;
-	vector<vec3> normals;
+	
 	vector<unsigned int> indices;
 	vector<vec2> UVs;
 	vector<vec3> instance_offset;
 
 public:
-	Terrain(int width, int length, GLfloat spacing, int x_instance, int z_instance);
+	Terrain(int x_width, int z_width, float length_x, float length_z, int x_instance, int z_instance);
+	
+
 	int GetWidth_X();
 	int GetWidth_Z();
 	float GetSpacing();

@@ -9,12 +9,13 @@ using namespace glm;
 #include "Terrain.h"
 
 #define INDEX(x, z, x_width) (x+z*x_width)
-Terrain::Terrain(int x_width, int z_width, GLfloat spacing, int x_instance, int z_instance)
+Terrain::Terrain(int x_width, int z_width, float length_x, float length_z, int x_instance, int z_instance)
 {
 
 	this->x_width = x_width;
 	this->z_width = z_width;
-	this->spacing = spacing;
+	this->x_spacing = length_x / (x_width - 1);
+	this->z_spacing = length_z / (z_width - 1);
 	this->x_instance = x_instance;
 	this->z_instance = z_instance;
 
@@ -22,7 +23,7 @@ Terrain::Terrain(int x_width, int z_width, GLfloat spacing, int x_instance, int 
 	{
 		for (int x = 0; x < x_width; x++)
 		{
-			vertices.push_back(vec3(x * spacing, 0, z * spacing));
+			vertices.push_back(vec3(x * x_spacing, 0, z * z_spacing));
 			normals.push_back(vec3(0, 1, 0));
 			
 			UVs.push_back(vec2(z/ (float)z_width, x/ (float)x_width));
@@ -42,15 +43,12 @@ Terrain::Terrain(int x_width, int z_width, GLfloat spacing, int x_instance, int 
 		}
 	}
 
-	float x_space = (x_width - 1) * spacing;
-	float z_space = (z_width - 1) * spacing;
-
 	for (int z = 0; z < z_instance; z++)
 	{
 		int a;
 		for (int x = 0; x < x_instance; x++)
 		{
-			instance_offset.push_back(vec3(x * x_space,0, z * z_space));
+			instance_offset.push_back(vec3(x * length_x,0, z * length_z));
 			int b;
 		}
 	}
@@ -64,11 +62,6 @@ int Terrain::GetWidth_X()
 int Terrain::GetWidth_Z()
 {
 	return z_width;
-}
-
-float Terrain::GetSpacing()
-{
-	return spacing;
 }
 
 int Terrain::GetInstance_X()

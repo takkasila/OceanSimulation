@@ -43,8 +43,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Ocean oceanObj(128, 128, .25, 10, 10
-		, 1, vec2(-1, -1), 9, 0.8, 8);
+	Ocean oceanObj(16 , 16, 20, 20, 1, 1);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetNormal(oceanObj.GetNormals());
@@ -62,11 +61,15 @@ int main()
 	GLuint instance_offsetID = glGetUniformLocation(shaderProgramID, "instance_offset");
 	
 	vector<vec3> instance_offset_vec3 = oceanObj.GetInstance_offset();
-	
+
 	glfwSetTime(0);
+
+	oceanObj.UpdateWave(glfwGetTime());
+	oceanObjBuffer.UpdateVertex(oceanObj.GetVertices());
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 		glUseProgram(shaderProgramID);
 		
