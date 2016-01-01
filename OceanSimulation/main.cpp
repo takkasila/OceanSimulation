@@ -35,7 +35,7 @@ int main()
 		return -1;
 
 	ShaderGenerator shaderProgram;
-	shaderProgram.AddShader("v_ocean.glsl", GL_VERTEX_SHADER);
+	shaderProgram.AddShader("v_ocean_dft.glsl", GL_VERTEX_SHADER);
 	shaderProgram.AddShader("f_ambient_diffuse_specular.glsl", GL_FRAGMENT_SHADER);
 	GLuint shaderProgramID = shaderProgram.LinkProgram();
 
@@ -47,9 +47,8 @@ int main()
 		, 1, vec2(-1, -1), 9, 0.8, 8);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
-	oceanObjBuffer.SetUVs(oceanObj.GetUVs());
+	oceanObjBuffer.SetNormal(oceanObj.GetNormals());
 	oceanObjBuffer.SetIndices(oceanObj.GetIndices());
-
 
 	GLuint mvp_uniform_block;
 	glGenBuffers(1, &mvp_uniform_block);
@@ -57,15 +56,6 @@ int main()
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4) * 3, NULL, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, mvp_uniform_block);
 
-	GLuint wave_uniform_block;
-	glGenBuffers(1, &wave_uniform_block);
-	glBindBuffer(GL_UNIFORM_BUFFER, wave_uniform_block);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(int) + sizeof(float) * 4 + sizeof(vec2), NULL, GL_STATIC_DRAW);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 1, wave_uniform_block);
-
-	GLuint timeID = glGetUniformLocation(shaderProgramID, "time");
-	GLuint waveNumberID = glGetUniformLocation(shaderProgramID, "WaveNumber");
-	GLuint globalSteepnessID = glGetUniformLocation(shaderProgramID, "GlobalSteepness");
 	GLuint LightPosition_worldspaceID = glGetUniformLocation(shaderProgramID, "LightPosition_worldspace");
 	GLuint EyePositionID = glGetUniformLocation(shaderProgramID, "EyePosition");
 	GLuint DirectionalLight_direction_worldspaceID = glGetUniformLocation(shaderProgramID, "DirectionalLight_direction_worldspace");
@@ -79,9 +69,6 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shaderProgramID);
-		glUniform1f(timeID, glfwGetTime());
-		glUniform1i(waveNumberID, oceanObj.WaveNumber);
-		glUniform1f(globalSteepnessID, oceanObj.GlobalSteepness);
 		
 		glUniform3f(LightPosition_worldspaceID, 128 * .25 / 2, 7, 128 * .25 / 2);
 		vec3 eyePos = getEyePos();
@@ -91,12 +78,14 @@ int main()
 
 		glBindBuffer(GL_UNIFORM_BUFFER, mvp_uniform_block);
 		SendUniformMVP();
-		glBindBuffer(GL_UNIFORM_BUFFER, wave_uniform_block);
-		SendUniformWaveParameters(oceanObj);
 		
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, oceanObjBuffer.vertices_buffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, oceanObjBuffer.normals_buffer);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, oceanObjBuffer.indices_buffer);
 		glDrawElementsInstanced(GL_TRIANGLES, oceanObj.GetIndices().size(), GL_UNSIGNED_INT, (void*) 0, instance_offset_vec3.size());
@@ -105,7 +94,6 @@ int main()
 		glfwPollEvents();
 	} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
 		&& glfwWindowShouldClose(window) == 0);
-
 
 	glDeleteProgram(shaderProgramID);
 	glfwTerminate();
@@ -142,7 +130,6 @@ int InitProgram()
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetCursorPos(window, window_width / 2, window_height / 2);
 
-	//glClearColor(0.8, 0.8, 0.8, 0);
 	glClearColor(BGColor.x, BGColor.y, BGColor.z, 1);
 
 	//Z-Buffer
@@ -165,9 +152,4 @@ void SendUniformMVP()
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mat4), &model[0][0]);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), &view[0][0]);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4) * 2, sizeof(mat4), &projection[0][0]);
-}
-
-void SendUniformWaveParameters(Ocean oceanObj)
-{
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(WaveParameter) * MAX_WAVE_NUMBER, &oceanObj.waves[0], GL_STATIC_DRAW);
 }

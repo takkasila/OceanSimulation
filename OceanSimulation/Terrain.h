@@ -14,6 +14,7 @@ private:
 	int z_instance;
 
 	vector<vec3> vertices;
+	vector<vec3> normals;
 	vector<unsigned int> indices;
 	vector<vec2> UVs;
 	vector<vec3> instance_offset;
@@ -27,6 +28,7 @@ public:
 	int GetInstance_Z();
 
 	vector<vec3> GetVertices();
+	vector<vec3> GetNormals();
 	vector<unsigned int> GetIndices();
 	vector<vec2> GetUVs();
 	vector<vec3> GetInstance_offset();

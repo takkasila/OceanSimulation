@@ -23,6 +23,7 @@ Terrain::Terrain(int x_width, int z_width, GLfloat spacing, int x_instance, int 
 		for (int x = 0; x < x_width; x++)
 		{
 			vertices.push_back(vec3(x * spacing, 0, z * spacing));
+			normals.push_back(vec3(0, 1, 0));
 			
 			UVs.push_back(vec2(z/ (float)z_width, x/ (float)x_width));
 			// Filling indices
@@ -83,6 +84,11 @@ int Terrain::GetInstance_Z()
 vector<vec3> Terrain::GetVertices()
 {
 	return vertices;
+}
+
+vector<vec3> Terrain::GetNormals()
+{
+	return normals;
 }
 
 vector<unsigned int> Terrain::GetIndices()
