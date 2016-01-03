@@ -43,6 +43,7 @@ public:
 	void SetIndices(vector<unsigned int> indices);
 
 	void UpdateVertex(vector<vec3> vertices);
+	void UpdateNormal(vector<vec3> normals);
 
 };
 #endif

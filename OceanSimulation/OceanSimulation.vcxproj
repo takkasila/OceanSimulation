@@ -87,6 +87,7 @@
     <ClCompile Include="Ocean.cpp" />
     <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="wut.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Controls.h" />

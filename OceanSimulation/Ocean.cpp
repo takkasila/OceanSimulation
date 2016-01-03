@@ -19,17 +19,32 @@ Ocean::Ocean(int nSampleX, int nSampleZ, float LengthX, float LengthZ, int nInst
 	this->LengthX = LengthX;
 	this->LengthZ = LengthZ;
 
-	int i = 0;
+	gaussian = normal_distribution<double>(0, 1);
+	gaussian2 = normal_distribution<double>(0, 1);
+	int pos = 0;
 	for (int n = 0; n < N; n++) for (int m = 0; m < M; m++)
 	{
-		vertices[i].x -= N / 2.0;
-		vertices[i].z -= M / 2.0;
+		vertices[pos].x -= N / 2.0;
+		vertices[pos].z -= M / 2.0;
 
-		originVertices.push_back(vertices[i++]);
+		vVar.originVertices.push_back(vertices[pos]);
+
+		vec2 K;
+		K.x = (2 * PI*n - PI*N) / LengthX;
+		K.y = (2 * PI*m - PI*M) / LengthZ;
+
+		vVar.eCompo.push_back(
+			exp(i*(double) (vertices[pos].x*K.x)
+			+ i*(double) (vertices[pos].z*K.y)));
+
+		vVar.h0.push_back(h_0(n, m));
+		vVar.h0Conj.push_back(conj(h_0(-n, -m)));
+		vVar.dispersion.push_back(dispersion_relation(n, m));
+
+		pos++;
 	}
 
-	gaussian = normal_distribution<double>(0, 1);
-	UpdateWave(0);
+	//UpdateWave(0);
 }
 
 void Ocean::UpdateWave(double time)
@@ -41,35 +56,34 @@ void Ocean::UpdateWave(double time)
 		vec3 sum_normal(0, 0, 0);
 		for (int n = 0; n < N; n++) for (int m = 0; m < M; m++)
 		{
+
+			complex<double> h_compo = 
+				vVar.h0[pos] * exp(i *(double) vVar.dispersion[pos] * time)
+				+ vVar.h0Conj[pos] * exp(-i *(double) vVar.dispersion[pos] * time);
+			complex<double> hc = h_compo * vVar.eCompo[pos];
+			
+			sum_comp += hc;
+			
 			vec2 K;
 			K.x = (2 * PI*n - PI*N) / LengthX;
 			K.y = (2 * PI*m - PI*M) / LengthZ;
 
-			complex<double> e_component =
-				exp(i*(double) (vertices[pos].x*K.x)
-				+ i*(double) (vertices[pos].z*K.y));
-
-			complex<double> h_compo = h_(n, m, time);
-			complex<double> hc = h_compo * e_component;
-			sum_comp += hc;
-
+			sum_normal += vec3( - K.x * hc.imag(), 0, -K.y * hc.imag());
+			
 			float lengthK = length(K);
 			if (lengthK == 0)
-			{
 				continue;
-			}
 			sum_displacement += vec2(K.x / length(K) *   hc.imag(), K.y / length(K) * hc.imag());
 
-			sum_normal += vec3( - K.x * hc.imag(), 0, -K.y * hc.imag());
 		}
 		vertices[pos].y = sum_comp.real();
-		vertices[pos].x = originVertices[pos].x + lambda * sum_displacement.x;
-		vertices[pos].z = originVertices[pos].z + lambda * sum_displacement.y;
-		normals[pos] = vec3(0, 1, 0) - sum_normal;
+		vertices[pos].x = vVar.originVertices[pos].x + lambda * sum_displacement.x;
+		vertices[pos].z = vVar.originVertices[pos].z + lambda * sum_displacement.y;
+		normals[pos] = normalize(vec3(0, 1, 0) - sum_normal);
 
 	}
-	
 }
+
 
 complex<double> Ocean::h_(int n, int m, double t)
 {
@@ -90,12 +104,17 @@ complex<double> Ocean::h_(int n, int m, double t)
 
 double Ocean::dispersion_relation(int n, int m)
 {
-	return sqrt( G * sqrt( n*n + m*m) );
+	float w0 = 2 * PI / 200.0;
+	vec2 K;
+	K.x = (2 * PI*n - PI*N) / LengthX;
+	K.y = (2 * PI*m - PI*M) / LengthZ;
+	double dispersionTerm = sqrt(G * sqrt(K.x * K.x + K.y * K.y));
+	return floor(dispersionTerm/w0) * w0;
 }
 
 complex<double> Ocean::h_0(int n, int m)
 {
-	complex<double> complexRand(gaussian(generator), gaussian(generator));
+	complex<double> complexRand(gaussian(generator), gaussian2(generator));
 	return complexRand * sqrt( philipsSpectrum(n, m) / 2.0);
 }
 
@@ -112,6 +131,10 @@ complex<double> Ocean::philipsSpectrum(int n, int m)
 	double waveLength = windSpeed*windSpeed / G;
 	complex<double> e_component = exp(-1.0 / pow((KLength * waveLength), 2));
 
-	double wave_component = pow(abs(dot(normalize(K), windDir)), 6) / pow(KLength, 4);
-	return amplitude * wave_component * e_component;
+	double wave_component = pow(dot(normalize(K), windDir), 4) / pow(KLength, 4);
+	
+	float damping = 0.001;
+	complex<double> damp_compo = exp(-KLength * KLength * waveLength * waveLength * damping * damping);
+	
+	return amplitude * wave_component * e_component * damp_compo;
 }

@@ -117,4 +117,18 @@ void RenderObject::UpdateVertex(vector<vec3> vertices)
 		this->vertices[i * 3 + 1] = vertices[i].y;
 		this->vertices[i * 3 + 2] = vertices[i].z;
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, vertices_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->vertices.size(), &this->vertices[0], GL_STATIC_DRAW);
+}
+
+void RenderObject::UpdateNormal(vector<vec3> normals)
+{
+	for (int i = 0; i < normals.size(); i++)
+	{
+		this->normals[i * 3] = normals[i].x;
+		this->normals[i * 3 + 1] = normals[i].y;
+		this->normals[i * 3 + 2] = normals[i].z;
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, normals_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->normals.size(), &this->normals[0], GL_STATIC_DRAW);
 }

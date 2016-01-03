@@ -8,11 +8,18 @@
 #define PI 3.1415926535897932384626433832795
 #define G 9.80665
 
+struct WavesVerticiesStaticVal
+{
+	vector<vec3> originVertices;
+	vector<complex<double>> eCompo;
+	vector<complex<double>> h0;
+	vector<complex<double>> h0Conj;
+	vector<float> dispersion;
+};
 class Ocean : public Terrain
 {
 private:
-	
-	vector<vec3> originVertices;
+	WavesVerticiesStaticVal vVar;
 
 	complex<double> i = complex<double>(0,1);
 	int N, M;
@@ -24,6 +31,7 @@ private:
 
 	default_random_engine generator;
 	normal_distribution<double> gaussian;
+	normal_distribution<double> gaussian2;
 
 	complex<double> h_(int n, int m, double t);
 	complex<double> h_0(int n, int m);
