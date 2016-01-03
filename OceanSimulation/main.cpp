@@ -43,7 +43,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Ocean oceanObj(16, 16, 32, 32, 1, 1);
+	Ocean oceanObj(32, 32, 32, 32, 1, 1);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetNormal(oceanObj.GetNormals());
@@ -66,7 +66,7 @@ int main()
 
 	//oceanObj.UpdateWave(glfwGetTime());
 	//oceanObjBuffer.UpdateVertex(oceanObj.GetVertices());
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

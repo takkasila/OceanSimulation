@@ -11,12 +11,16 @@
 class Ocean : public Terrain
 {
 private:
+	
+	vector<vec3> originVertices;
+
 	complex<double> i = complex<double>(0,1);
 	int N, M;
 	float LengthX, LengthZ;
-	float amplitude = 1;
-	vec2 windDir = normalize(vec2(1, 1));
-	float windSpeed = 2;
+	float amplitude = 0.0005f;
+	vec2 windDir = normalize(vec2(1, 0));
+	float windSpeed = 32;
+	float lambda = -1;
 
 	default_random_engine generator;
 	normal_distribution<double> gaussian;
@@ -25,7 +29,6 @@ private:
 	complex<double> h_0(int n, int m);
 	double dispersion_relation(int n, int m);
 	complex<double> philipsSpectrum(int n, int m);
-	
 
 public:
 	Ocean(int nSampleX, int nSampleZ, float LengthX, float LengthY, int nInstanceX, int nInstanceZ);
