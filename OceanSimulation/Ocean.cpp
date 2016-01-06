@@ -33,10 +33,6 @@ Ocean::Ocean(int nSampleX, int nSampleZ, float LengthX, float LengthZ, int nInst
 		K.x = (2 * PI*n - PI*N) / LengthX;
 		K.y = (2 * PI*m - PI*M) / LengthZ;
 
-		vVar.eCompo.push_back(
-			exp(i*(double) (vertices[pos].x*K.x)
-			+ i*(double) (vertices[pos].z*K.y)));
-
 		vVar.h0.push_back(h_0(n, m));
 		vVar.h0Conj.push_back(conj(h_0(-n, -m)));
 		vVar.dispersion.push_back(dispersion_relation(n, m));
@@ -44,7 +40,7 @@ Ocean::Ocean(int nSampleX, int nSampleZ, float LengthX, float LengthZ, int nInst
 		pos++;
 	}
 
-	//UpdateWave(0);
+	UpdateWave(0);
 }
 
 void Ocean::UpdateWave(double time)
@@ -56,18 +52,17 @@ void Ocean::UpdateWave(double time)
 		vec3 sum_normal(0, 0, 0);
 		for (int n = 0; n < N; n++) for (int m = 0; m < M; m++)
 		{
-
-			complex<double> h_compo = 
-				vVar.h0[pos] * exp(i *(double) vVar.dispersion[pos] * time)
-				+ vVar.h0Conj[pos] * exp(-i *(double) vVar.dispersion[pos] * time);
-			complex<double> hc = h_compo * vVar.eCompo[pos];
-			
-			sum_comp += hc;
-			
 			vec2 K;
 			K.x = (2 * PI*n - PI*N) / LengthX;
 			K.y = (2 * PI*m - PI*M) / LengthZ;
 
+			complex<double> h_compo = h_(n, m, time);
+			complex<double> e_compo = exp(i*(double) (vertices[pos].x*K.x)
+				+ i*(double) (vertices[pos].z*K.y));
+			complex<double> hc = h_compo * e_compo;
+			
+			sum_comp += hc;
+			
 			sum_normal += vec3( - K.x * hc.imag(), 0, -K.y * hc.imag());
 			
 			float lengthK = length(K);
@@ -87,19 +82,13 @@ void Ocean::UpdateWave(double time)
 
 complex<double> Ocean::h_(int n, int m, double t)
 {
-	complex<double> h0, h0Conj, e_component, e_componentConj;
+	int pos = n * N + m;
+	complex<double> e_component, e_componentConj;
 	
-	h0 = h_0(n, m);
-	h0Conj = conj(h_0(-n, -m));
+	e_component = exp(i *(double) (vVar.dispersion[pos] * t));
+	e_componentConj = exp(-i*(double) (vVar.dispersion[pos] * t));
 
-	double dispersion = dispersion_relation(n, m);
-	
-	e_component = exp(i *(double) (dispersion * t));
-	e_componentConj = exp(-i*(double) (dispersion * t));
-
-	int lmao11 = 0;
-	int lmao12 = lmao11 + 1;
-	return h0 * e_component + h0Conj * e_componentConj;
+	return vVar.h0[pos] * e_component + vVar.h0Conj[pos] * e_componentConj;
 }
 
 double Ocean::dispersion_relation(int n, int m)

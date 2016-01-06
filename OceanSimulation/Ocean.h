@@ -24,8 +24,8 @@ private:
 	complex<double> i = complex<double>(0,1);
 	int N, M;
 	float LengthX, LengthZ;
-	float amplitude = 0.0005f;
-	vec2 windDir = normalize(vec2(1, 0));
+	float amplitude = 0.001f;
+	vec2 windDir = normalize(vec2(1, 0.5f));
 	float windSpeed = 32;
 	float lambda = -1;
 
