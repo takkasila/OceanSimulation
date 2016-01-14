@@ -40,7 +40,7 @@ Ocean::Ocean(int nSampleX, int nSampleZ, float LengthX, float LengthZ, int nInst
 		pos++;
 	}
 
-	UpdateWave(0);
+	//UpdateWave(0);
 }
 
 void Ocean::UpdateWave(double time)

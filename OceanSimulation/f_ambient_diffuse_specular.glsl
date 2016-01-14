@@ -2,7 +2,7 @@
 
 uniform vec3 LightPosition_worldspace;
 uniform vec3 DirectionalLight_direction_worldspace;
-
+uniform samplerBuffer u_tbo_tex;
 layout(std140, binding = 0) uniform MVP
 {
   mat4 model;
@@ -57,4 +57,8 @@ void main()
   float cosTheta_Di = clamp(dot(n, Di_Light_direction), 0, 1);
 
   color += MaterialDiffuseColor * Di_Light_color * Di_Light_power * cosTheta_Di;
+
+  float r = texelFetch(u_tbo_tex, 0).a;
+  if(r == 6)
+    color = vec3(1, 0, 0);
 }

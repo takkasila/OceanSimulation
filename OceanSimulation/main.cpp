@@ -43,7 +43,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Ocean oceanObj(64, 64, 64, 64, 2, 2);
+	Ocean oceanObj(16, 16, 4, 4, 2, 2);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetNormal(oceanObj.GetNormals());
@@ -62,12 +62,38 @@ int main()
 	
 	vector<vec3> instance_offset_vec3 = oceanObj.GetInstance_offset();
 
+
+	// Testing Buffer Texture
+	GLuint u_tbo_tex = glGetUniformLocation(shaderProgramID, "u_tbo_tex");
+	GLuint tbo_data_buffer;
+	float tbo_data [] = {
+		9, 8, 7, 6
+	};
+	glGenBuffers(1, &tbo_data_buffer);
+	glBindBuffer(GL_TEXTURE_BUFFER, tbo_data_buffer);
+	glBufferData(GL_TEXTURE_BUFFER, sizeof(tbo_data), tbo_data, GL_STATIC_DRAW);
+
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_BUFFER, textureID);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, tbo_data_buffer);
+
+
+	glfwSetTime(0);
 	do
 	{
+		oceanObj.UpdateWave(glfwGetTime());
+		oceanObjBuffer.UpdateVertex(oceanObj.GetVertices());
+		oceanObjBuffer.UpdateNormal(oceanObj.GetNormals());
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shaderProgramID);
 		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_BUFFER, textureID);
+		glUniform1i(u_tbo_tex, 0);
+
 		glUniform3f(LightPosition_worldspaceID, 128 * .25 / 2, 7, 128 * .25 / 2);
 		vec3 eyePos = getEyePos();
 		glUniform3f(EyePositionID, eyePos.x, eyePos.y, eyePos.z);
