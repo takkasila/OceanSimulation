@@ -11,35 +11,34 @@
 struct WavesVerticiesStaticVal
 {
 	vector<vec3> originVertices;
-	vector<complex<double>> eCompo;
-	vector<complex<double>> h0;
-	vector<complex<double>> h0Conj;
+	vector<complex<float>> h0;
+	vector<complex<float>> h0Conj;
 	vector<float> dispersion;
 };
 class Ocean : public Terrain
 {
 private:
-	WavesVerticiesStaticVal vVar;
-
-	complex<double> i = complex<double>(0,1);
+	complex<float> i = complex<float>(0,1);
 	int N, M;
-	float LengthX, LengthZ;
 	float amplitude = 0.001f;
 	vec2 windDir = normalize(vec2(1, 0.5f));
 	float windSpeed = 32;
 	float lambda = -1;
 
 	default_random_engine generator;
-	normal_distribution<double> gaussian;
-	normal_distribution<double> gaussian2;
+	normal_distribution<float> gaussian;
+	normal_distribution<float> gaussian2;
 
-	complex<double> h_(int n, int m, double t);
-	complex<double> h_0(int n, int m);
-	double dispersion_relation(int n, int m);
-	complex<double> philipsSpectrum(int n, int m);
+	complex<float> h_(int n, int m, float t);
+	complex<float> h_0(int n, int m);
+	float dispersion_relation(int n, int m);
+	complex<float> philipsSpectrum(int n, int m);
 
 public:
+	WavesVerticiesStaticVal vVar;
 	Ocean(int nSampleX, int nSampleZ, float LengthX, float LengthY, int nInstanceX, int nInstanceZ);
-	void UpdateWave(double time);
+	void UpdateWave(float time);
+	float LengthX, LengthZ;
+
 };
 #endif

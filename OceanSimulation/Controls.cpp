@@ -12,7 +12,7 @@ using namespace glm;
 
 mat4 ViewMatrix;
 mat4 ProjectionMatrix;
-vec3 position = vec3(16, 4, 16);
+vec3 position = vec3(0, 4, 0);
 mat4 getViewMatrix()
 {
 	return ViewMatrix;

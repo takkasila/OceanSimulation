@@ -43,7 +43,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Ocean oceanObj(16, 16, 4, 4, 2, 2);
+	Ocean oceanObj(128, 128, 60, 60, 2, 2);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetNormal(oceanObj.GetNormals());
@@ -62,37 +62,95 @@ int main()
 	
 	vector<vec3> instance_offset_vec3 = oceanObj.GetInstance_offset();
 
+#pragma region WaveParameter to Shader
 
-	// Testing Buffer Texture
-	GLuint u_tbo_tex = glGetUniformLocation(shaderProgramID, "u_tbo_tex");
-	GLuint tbo_data_buffer;
-	float tbo_data [] = {
-		9, 8, 7, 6
-	};
-	glGenBuffers(1, &tbo_data_buffer);
-	glBindBuffer(GL_TEXTURE_BUFFER, tbo_data_buffer);
-	glBufferData(GL_TEXTURE_BUFFER, sizeof(tbo_data), tbo_data, GL_STATIC_DRAW);
+	GLuint timeID = glGetUniformLocation(shaderProgramID, "time");
+	GLuint sampleNID = glGetUniformLocation(shaderProgramID, "N");
+	GLuint sampleMID = glGetUniformLocation(shaderProgramID, "M");
+	GLuint LengthXID = glGetUniformLocation(shaderProgramID, "LengthX");
+	GLuint LengthZID = glGetUniformLocation(shaderProgramID, "LengthZ");
 
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_BUFFER, textureID);
-	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, tbo_data_buffer);
+	// h0
+	GLuint h0_uniform = glGetUniformLocation(shaderProgramID, "h0");
+	GLuint h0_data_buffer;
+	glGenBuffers(1, &h0_data_buffer);
+	glBindBuffer(GL_TEXTURE_BUFFER, h0_data_buffer);
+	glBufferData(GL_TEXTURE_BUFFER, oceanObj.vVar.h0.size() * sizeof(float), &oceanObj.vVar.h0[0], GL_STATIC_DRAW);
 
+	GLuint h0_texID;
+	glGenTextures(1, &h0_texID);
+	glBindTexture(GL_TEXTURE_BUFFER, h0_texID);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RG32F, h0_data_buffer);
+	
+	// h0Conj
+	GLuint h0Conj_uniform = glGetUniformLocation(shaderProgramID, "h0Conj");
+	GLuint h0Conj_data_buffer;
+	glGenBuffers(1, &h0Conj_data_buffer);
+	glBindBuffer(GL_TEXTURE_BUFFER, h0Conj_data_buffer);
+	glBufferData(GL_TEXTURE_BUFFER, oceanObj.vVar.h0Conj.size() * sizeof(float), &oceanObj.vVar.h0Conj[0], GL_STATIC_DRAW);
 
+	GLuint h0Conj_texID;
+	glGenTextures(1, &h0Conj_texID);
+	glBindTexture(GL_TEXTURE_BUFFER, h0Conj_texID);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RG32F, h0Conj_data_buffer);
+
+	// dispersion
+	GLuint dispersion_uniform = glGetUniformLocation(shaderProgramID, "dispersion");
+	GLuint dispersion_data_buffer;
+	glGenBuffers(1, &dispersion_data_buffer);
+	glBindBuffer(GL_TEXTURE_BUFFER, dispersion_data_buffer);
+	glBufferData(GL_TEXTURE_BUFFER, oceanObj.vVar.dispersion.size() * sizeof(float), &oceanObj.vVar.dispersion[0], GL_STATIC_DRAW);
+
+	GLuint dispersion_texID;
+	glGenTextures(1, &dispersion_texID);
+	glBindTexture(GL_TEXTURE_BUFFER, dispersion_texID);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, dispersion_data_buffer);
+
+	// originPos
+	GLuint originPos_uniform = glGetUniformLocation(shaderProgramID, "originPos");
+	GLuint originPos_data_buffer;
+	glGenBuffers(1, &originPos_data_buffer);
+	glBindBuffer(GL_TEXTURE_BUFFER, originPos_data_buffer);
+	glBufferData(GL_TEXTURE_BUFFER, oceanObj.vVar.originVertices.size() * sizeof(float), &oceanObj.vVar.originVertices[0], GL_STATIC_DRAW);
+
+	GLuint originPos_texID;
+	glGenTextures(1, &originPos_texID);
+	glBindTexture(GL_TEXTURE_BUFFER, originPos_texID);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGB32F, originPos_data_buffer);
+
+#pragma endregion
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
 	do
 	{
-		oceanObj.UpdateWave(glfwGetTime());
-		oceanObjBuffer.UpdateVertex(oceanObj.GetVertices());
-		oceanObjBuffer.UpdateNormal(oceanObj.GetNormals());
+		//oceanObj.UpdateWave(glfwGetTime());
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shaderProgramID);
 		
+		glUniform1f(timeID, (float)glfwGetTime());
+		glUniform1i(sampleNID, oceanObj.GetWidth_X());
+		glUniform1i(sampleMID, oceanObj.GetWidth_Z());
+		glUniform1f(LengthXID, oceanObj.LengthX);
+		glUniform1f(LengthZID, oceanObj.LengthZ);
+
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_BUFFER, textureID);
-		glUniform1i(u_tbo_tex, 0);
+		glBindTexture(GL_TEXTURE_BUFFER, h0_texID);
+		glUniform1i(h0_uniform, 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_BUFFER, h0Conj_texID);
+		glUniform1i(h0Conj_uniform, 1);
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_BUFFER, dispersion_texID);
+		glUniform1i(dispersion_uniform, 2);
+
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_BUFFER, originPos_texID);
+		glUniform1i(originPos_uniform, 3);
 
 		glUniform3f(LightPosition_worldspaceID, 128 * .25 / 2, 7, 128 * .25 / 2);
 		vec3 eyePos = getEyePos();

@@ -2,7 +2,6 @@
 
 uniform vec3 LightPosition_worldspace;
 uniform vec3 DirectionalLight_direction_worldspace;
-uniform samplerBuffer u_tbo_tex;
 layout(std140, binding = 0) uniform MVP
 {
   mat4 model;
@@ -18,6 +17,7 @@ in VS_OUT
   vec3 lightDirection_cameraspace;
 } fs_in;
 
+in vec3 vColor;
 out vec3 color;
 
 void main()
@@ -58,7 +58,5 @@ void main()
 
   color += MaterialDiffuseColor * Di_Light_color * Di_Light_power * cosTheta_Di;
 
-  float r = texelFetch(u_tbo_tex, 0).a;
-  if(r == 6)
-    color = vec3(1, 0, 0);
+  // color = vColor;
 }
