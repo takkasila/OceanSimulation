@@ -7,9 +7,9 @@ Currently support only Windows.
 Simply clone the project and open solution file in Visual Studio
 
 ## Project Status
-- Non-animated waves using full offline DFT on cpu approach.
+- Animated waves using DFT on GPU.
 
-![](https://drive.google.com/uc?export=view&id=0B8ZrSC4wBsYacFRjVmF1Y2tTeTA)
+![](https://drive.google.com/uc?export=view&id=0B8ZrSC4wBsYaaTJqN2N5RHZ4ZTQ)
 
 ## Todo
-- Move DFT onto GPUs
+- Water shading.
