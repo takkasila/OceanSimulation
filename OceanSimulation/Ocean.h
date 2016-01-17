@@ -10,7 +10,6 @@
 
 struct WavesVerticiesStaticVal
 {
-	vector<vec3> originVertices;
 	vector<complex<float>> h0;
 	vector<complex<float>> h0Conj;
 	vector<float> dispersion;
@@ -21,8 +20,8 @@ private:
 	complex<float> i = complex<float>(0,1);
 	int N, M;
 	float amplitude = 0.001f;
-	vec2 windDir = normalize(vec2(1, 0.5f));
-	float windSpeed = 32;
+	vec2 windDir = normalize(vec2(1, 0.3f));
+	float windSpeed = 30;
 	float lambda = -1;
 
 	default_random_engine generator;
@@ -37,7 +36,6 @@ private:
 public:
 	WavesVerticiesStaticVal vVar;
 	Ocean(int nSampleX, int nSampleZ, float LengthX, float LengthY, int nInstanceX, int nInstanceZ);
-	void UpdateWave(float time);
 	float LengthX, LengthZ;
 
 };

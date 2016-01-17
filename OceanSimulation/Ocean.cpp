@@ -27,8 +27,6 @@ Ocean::Ocean(int nSampleX, int nSampleZ, float LengthX, float LengthZ, int nInst
 		vertices[pos].x -= N / 2.0;
 		vertices[pos].z -= M / 2.0;
 
-		vVar.originVertices.push_back(vertices[pos]);
-
 		vec2 K;
 		K.x = (2 * PI*n - PI*N) / LengthX;
 		K.y = (2 * PI*m - PI*M) / LengthZ;
@@ -39,45 +37,7 @@ Ocean::Ocean(int nSampleX, int nSampleZ, float LengthX, float LengthZ, int nInst
 
 		pos++;
 	}
-	//UpdateWave(0);
 }
-
-void Ocean::UpdateWave(float time)
-{
-	for (int pos = 0; pos < vertices.size(); pos++)
-	{
-		complex<float> sum_comp(0, 0);
-		vec2 sum_displacement(0, 0);
-		vec3 sum_normal(0, 0, 0);
-		for (int n = 0; n < N; n++) for (int m = 0; m < M; m++)
-		{
-			vec2 K;
-			K.x = (2 * PI*n - PI*N) / LengthX;
-			K.y = (2 * PI*m - PI*M) / LengthZ;
-
-			complex<float> h_compo = h_(n, m, time);
-			complex<float> e_compo = exp(i*(float) (vertices[pos].x*K.x)
-				+ i*(float) (vertices[pos].z*K.y));
-			complex<float> hc = h_compo * e_compo;
-			
-			sum_comp += hc;
-			
-			sum_normal += vec3( - K.x * hc.imag(), 0, -K.y * hc.imag());
-			
-			float lengthK = length(K);
-			if (lengthK == 0)
-				continue;
-			sum_displacement += vec2(K.x / lengthK *   hc.imag(), K.y / lengthK * hc.imag());
-
-		}
-		vertices[pos].y = sum_comp.real();
-		vertices[pos].x = vVar.originVertices[pos].x + lambda * sum_displacement.x;
-		vertices[pos].z = vVar.originVertices[pos].z + lambda * sum_displacement.y;
-		normals[pos] = normalize(vec3(0, 1, 0) - sum_normal);
-
-	}
-}
-
 
 complex<float> Ocean::h_(int n, int m, float t)
 {

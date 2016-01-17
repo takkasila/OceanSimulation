@@ -7,7 +7,6 @@
 #define cx_mul(a, b) vec2(a.x*b.x-a.y*b.y, a.x*b.y+a.y*b.x)
 
 layout(location = 0) in vec3 v_pos;
-layout(location = 1) in vec3 v_normal;
 
 uniform vec3 LightPosition_worldspace;
 uniform vec3 EyePosition;
@@ -22,7 +21,6 @@ uniform float LengthZ;
 uniform samplerBuffer h0;
 uniform samplerBuffer h0Conj;
 uniform samplerBuffer dispersion;
-uniform samplerBuffer originPos;
 
 out vec3 vColor;
 
@@ -49,9 +47,6 @@ vec3 normal_res;
 void main()
 {
     UpdateWave();
-    // v_pos_res = v_pos;
-    // v_pos_res = texelFetch(originPos, gl_VertexID).rgb;
-    // v_pos_res.x = texelFetch(originPos, gl_VertexID).r;
 
     v_pos_res += instance_offset[gl_InstanceID];
     gl_Position = projection * view * model * vec4(v_pos_res, 1);
@@ -64,7 +59,7 @@ void main()
     vec3 light_pos_camspace = (view * vec4(LightPosition_worldspace, 1)).xyz;
     vs_out.lightDirection_cameraspace = light_pos_camspace + vs_out.eyeDirection_cameraspace;
 
-    vs_out.normal_cameraspace = (view * model * vec4(v_normal,0)).xyz;
+    vs_out.normal_cameraspace = (view * model * vec4(normal_res,0)).xyz;
 }
 
 void UpdateWave()
@@ -93,7 +88,6 @@ void UpdateWave()
     }
 
     v_pos_res.y = sum_comp.x;
-    vec3 originPos_fetch = texelFetch(originPos, gl_VertexID).rgb;
     v_pos_res.x = v_pos.x + lambda * sum_displacement.x;
     v_pos_res.z = v_pos.z + lambda * sum_displacement.y;
     normal_res = normalize(vec3(0, 1, 0) - sum_normal);

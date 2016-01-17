@@ -43,7 +43,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Ocean oceanObj(128, 128, 60, 60, 2, 2);
+	Ocean oceanObj(128, 128, 60, 60, 3, 3);
 	RenderObject oceanObjBuffer;
 	oceanObjBuffer.SetVertex(oceanObj.GetVertices());
 	oceanObjBuffer.SetNormal(oceanObj.GetNormals());
@@ -106,26 +106,11 @@ int main()
 	glBindTexture(GL_TEXTURE_BUFFER, dispersion_texID);
 	glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, dispersion_data_buffer);
 
-	// originPos
-	GLuint originPos_uniform = glGetUniformLocation(shaderProgramID, "originPos");
-	GLuint originPos_data_buffer;
-	glGenBuffers(1, &originPos_data_buffer);
-	glBindBuffer(GL_TEXTURE_BUFFER, originPos_data_buffer);
-	glBufferData(GL_TEXTURE_BUFFER, oceanObj.vVar.originVertices.size() * sizeof(float), &oceanObj.vVar.originVertices[0], GL_STATIC_DRAW);
-
-	GLuint originPos_texID;
-	glGenTextures(1, &originPos_texID);
-	glBindTexture(GL_TEXTURE_BUFFER, originPos_texID);
-	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGB32F, originPos_data_buffer);
-
 #pragma endregion
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glfwSetTime(0);
 	do
 	{
-		//oceanObj.UpdateWave(glfwGetTime());
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shaderProgramID);
@@ -148,10 +133,6 @@ int main()
 		glBindTexture(GL_TEXTURE_BUFFER, dispersion_texID);
 		glUniform1i(dispersion_uniform, 2);
 
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_BUFFER, originPos_texID);
-		glUniform1i(originPos_uniform, 3);
-
 		glUniform3f(LightPosition_worldspaceID, 128 * .25 / 2, 7, 128 * .25 / 2);
 		vec3 eyePos = getEyePos();
 		glUniform3f(EyePositionID, eyePos.x, eyePos.y, eyePos.z);
@@ -164,10 +145,6 @@ int main()
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, oceanObjBuffer.vertices_buffer);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, oceanObjBuffer.normals_buffer);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, oceanObjBuffer.indices_buffer);
 		glDrawElementsInstanced(GL_TRIANGLES, oceanObj.GetIndices().size(), GL_UNSIGNED_INT, (void*) 0, instance_offset_vec3.size());
