@@ -3,9 +3,7 @@ A self-study of simulating ocean waves. Featuring Gerstner waves and Statistic F
 
 ## Project branch
 - master
-...Gerstner waves.
 - DFT_Waves
-...DFT Waves on GPU
     
 ## Installation
 Currently support only Windows.
