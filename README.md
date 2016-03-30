@@ -17,3 +17,6 @@ Simply clone the project and open solution file in Visual Studio
 
 ## Todo
 - Fixing normal distributed parameters
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/takkasila/oceansimulation/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
